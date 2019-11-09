@@ -67,14 +67,29 @@ public class LibrarianViewController {
             InsertBookDialogController controller = fxmlLoader.getController();
             controller.processResults();
         }
+
+        // After the insertion operation was successfully performed on the database,
+        // make sure that the view is also updated
+        listAll();
     }
 
     @FXML
     /**
-     * Called when the user presses the 'Refresh' button. It repopulates the
-     * TableView with the current values in the library.db.
+     * Called when the user presses the 'Delete' button. It removes the currently
+     * selected book from the database.
      */
-    public void refreshTable() {
+    public void deleteBook() {
+        final BookAuthor bookAuthor = (BookAuthor) table.getSelectionModel().getSelectedItem();
+
+        if (bookAuthor == null) {
+            System.out.println("No artist selected!");
+            return;
+        }
+
+        DataModel.getInstance().deleteBook(bookAuthor.getTitle(), bookAuthor.getFirstName(), bookAuthor.getLastName());
+
+        // After the delete operation was successfully performed on the database,
+        // make sure that the view is also updated
         listAll();
     }
 }

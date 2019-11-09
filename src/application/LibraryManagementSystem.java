@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 import librarian_view.LibrarianViewController;
 import model.DataModel;
 
-public class Main extends Application {
+public class LibraryManagementSystem extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -17,7 +17,6 @@ public class Main extends Application {
         Parent root = loader.load();
         LibrarianViewController controller = loader.getController();
         controller.listAll();
-
 
         primaryStage.setTitle("Library management system");
         primaryStage.setScene(new Scene(root, 800, 600));

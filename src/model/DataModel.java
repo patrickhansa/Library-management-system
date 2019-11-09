@@ -8,7 +8,7 @@ public class DataModel {
 
     public static final String DB_NAME = "library.db";
 
-    public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Users\\patri\\IdeaProjects\\LibraryManagementSystem\\src\\" + DB_NAME;
+    public static final String CONNECTION_STRING = "jdbc:sqlite:C:\\Users\\patri\\IdeaProjects\\Library management system\\src\\" + DB_NAME;
 
     public static final String TABLE_AUTHOR = "author";
     public static final String COLUMN_AUTHOR_ID = "_id";
@@ -66,11 +66,24 @@ public class DataModel {
             TABLE_AUTHOR + " WHERE " + COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + COLUMN_AUTHOR_LAST_NAME +
             " = ?";
 
+    public static final String DELETE_BOOK = "DELETE FROM " + TABLE_BOOK + " WHERE " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE
+            + " = ?";
+
+    public static final String DELETE_AUTHOR = "DELETE FROM " + TABLE_AUTHOR + " WHERE " + TABLE_AUTHOR + "." +
+            COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME + " = ?";
+
+    public static final String COUNT_BOOKS_BY_AUTHOR = "SELECT COUNT(*) AS count FROM " + TABLE_BOOKS_AUTHOR_VIEW + " WHERE " +
+            TABLE_BOOKS_AUTHOR_VIEW + "." + COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + TABLE_BOOKS_AUTHOR_VIEW +
+            "." + COLUMN_AUTHOR_LAST_NAME + " = ?";
+
     private Connection conn;
 
     private PreparedStatement insertIntoAuthors;
     private PreparedStatement insertIntoBooks;
     private PreparedStatement queryAuthor;
+    private PreparedStatement deleteFromBooks;
+    private PreparedStatement deleteFromAuthors;
+    private PreparedStatement countBooksByAuthor;
 
     private static DataModel instance = new DataModel();
 
@@ -83,7 +96,7 @@ public class DataModel {
     /**
      * This method is used for connecting to the library database
      * and for initialising the prepared statements. It is called
-     * when the application is opened.
+     * when the application is started.
      *
      * @return true if the connection was successful
      *         false if the connection failed
@@ -95,6 +108,9 @@ public class DataModel {
             insertIntoAuthors = conn.prepareStatement(INSERT_AUTHOR, Statement.RETURN_GENERATED_KEYS);
             insertIntoBooks = conn.prepareStatement(INSERT_BOOK);
             queryAuthor = conn.prepareStatement(QUERY_AUTHOR);
+            deleteFromBooks = conn.prepareStatement(DELETE_BOOK);
+            deleteFromAuthors = conn.prepareStatement(DELETE_AUTHOR);
+            countBooksByAuthor = conn.prepareStatement(COUNT_BOOKS_BY_AUTHOR);
 
             return true;
         } catch (SQLException e) {
@@ -119,6 +135,18 @@ public class DataModel {
 
             if (queryAuthor != null) {
                 queryAuthor.close();
+            }
+
+            if (deleteFromBooks != null) {
+                deleteFromBooks.close();
+            }
+
+            if (deleteFromAuthors != null) {
+                deleteFromAuthors.close();
+            }
+
+            if (countBooksByAuthor != null) {
+                countBooksByAuthor.close();
             }
 
             if (conn != null) {
@@ -245,6 +273,101 @@ public class DataModel {
         } finally {
             try {
                 System.out.println("Resetting default commit behavior");
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.out.println("Couldn't reset auto-commit!" + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Private method used for checking how many book entries a particular
+     * author has, so that we can decide whether it's ok to remove that
+     * author or not. If the count is 1, then remove the author, if it is
+     * greater than 1, don't remove the author.
+     *
+     * @param firstName first name of the author
+     * @param lastName last name of the author
+     * @return number of books written by the particular author
+     */
+    private int countBooksByAuthor(String firstName, String lastName) {
+        int countOfBooks;
+
+        try {
+            countBooksByAuthor.setString(1, firstName);
+            countBooksByAuthor.setString(2, lastName);
+
+            ResultSet results = countBooksByAuthor.executeQuery();
+
+            countOfBooks = results.getInt("count");
+            return countOfBooks;
+        } catch (Exception e) {
+            System.out.println("Count books exception: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Delete the author if the last remaining book was deleted from the book
+     * table in the library.db.
+     *
+     * @param firstName first name of the author
+     * @param lastName last name of the author
+     */
+    private void deleteAuthor(String firstName, String lastName) {
+        try {
+            deleteFromAuthors.setString(1, firstName);
+            deleteFromAuthors.setString(2, lastName);
+
+            int affectedRows = deleteFromAuthors.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("The author deletion failed!");
+            }
+        } catch (Exception e) {
+            System.out.println("Delete author exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * This method implements the transaction of deleting a book from the database.
+     * First, it checks if, after deleting the book, the author still has other entries
+     * in the database. If he doesn't, then the author will be deleted as well.
+     *
+     * @param title title of the book
+     * @param authorFirstName
+     * @param authorLastName
+     */
+    public void deleteBook(String title, String authorFirstName, String authorLastName) {
+        try {
+            conn.setAutoCommit(false);
+
+            if (countBooksByAuthor(authorFirstName, authorLastName) == 1) {
+                // There is one book associated with the author and it will be deleted,
+                // so the author needs to be deleted as well
+                deleteAuthor(authorFirstName, authorLastName);
+            }
+
+            deleteFromBooks.setString(1, title);
+            int affectedRows = deleteFromBooks.executeUpdate();
+
+            if (affectedRows == 1) {
+                conn.commit();
+            } else {
+                throw new SQLException("The deletion of the book failed.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Delete book exception: " + e.getMessage());
+            try {
+                System.out.println("Performing rollback.");
+                conn.rollback();
+            } catch (SQLException e2) {
+                System.out.println("Rollback failed: " + e2.getMessage());
+            }
+        } finally {
+            try {
+                System.out.println("Resetting default commit behavior.");
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 System.out.println("Couldn't reset auto-commit!" + e.getMessage());
