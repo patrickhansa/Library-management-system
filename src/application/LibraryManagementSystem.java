@@ -19,7 +19,7 @@ public class LibraryManagementSystem extends Application {
         controller.listAll();
 
         primaryStage.setTitle("Library management system");
-        primaryStage.setScene(new Scene(root, 800, 600));
+        primaryStage.setScene(new Scene(root, 1000, 600));
         primaryStage.show();
     }
 

@@ -7,6 +7,8 @@ public class BookAuthor {
     private SimpleStringProperty title;
     private SimpleStringProperty firstName;
     private SimpleStringProperty lastName;
+    private SimpleStringProperty nationality;
+    private SimpleStringProperty ISBN;
     private SimpleStringProperty subject;
     private SimpleIntegerProperty publicationDate;
 
@@ -14,6 +16,8 @@ public class BookAuthor {
         this.title = new SimpleStringProperty();
         this.firstName = new SimpleStringProperty();
         this.lastName = new SimpleStringProperty();
+        this.nationality = new SimpleStringProperty();
+        this.ISBN = new SimpleStringProperty();
         this.subject = new SimpleStringProperty();
         this.publicationDate = new SimpleIntegerProperty();
     }
@@ -52,6 +56,30 @@ public class BookAuthor {
 
     public void setLastName(String lastName) {
         this.lastName.set(lastName);
+    }
+
+    public String getNationality() {
+        return nationality.get();
+    }
+
+    public SimpleStringProperty nationalityProperty() {
+        return nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality.set(nationality);
+    }
+
+    public String getISBN() {
+        return ISBN.get();
+    }
+
+    public SimpleStringProperty ISBNProperty() {
+        return ISBN;
+    }
+
+    public void setISBN(String ISBN) {
+        this.ISBN.set(ISBN);
     }
 
     public String getSubject() {

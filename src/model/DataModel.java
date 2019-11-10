@@ -34,26 +34,7 @@ public class DataModel {
     public static final int ORDER_BY_ASC = 2;
     public static final int ORDER_BY_DESC = 3;
 
-    public static final String LIST_ONLY_BOOKS =
-            "SELECT " + COLUMN_BOOK_TITLE +
-            " FROM " + TABLE_BOOK;
-
-    public static final String LIST_ONLY_AUTHORS =
-            "SELECT " + COLUMN_AUTHOR_FIRST_NAME + ", " + COLUMN_AUTHOR_LAST_NAME +
-            " FROM "  + TABLE_AUTHOR;
-
     public static final String TABLE_BOOKS_AUTHOR_VIEW = "books_by_author";
-
-    public static final String CREATE_BOOKS_BY_AUTHOR_VIEW =
-            "CREATE VIEW IF NOT EXISTS " +
-            TABLE_BOOKS_AUTHOR_VIEW + " AS SELECT " + TABLE_BOOK + "." +
-            COLUMN_BOOK_TITLE + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME +
-            ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME + ", " + TABLE_BOOK + "." + COLUMN_BOOK_SUBJECT + ", "
-            + TABLE_BOOK + "." + COLUMN_BOOK_PUBLICATION_DATE +
-            " FROM " + TABLE_AUTHOR +
-            " INNER JOIN " + TABLE_BOOK + " ON " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID + " = " +
-            TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID +
-            " ORDER BY " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME + " ASC";
 
     public static final String INSERT_AUTHOR = "INSERT INTO " + TABLE_AUTHOR + '(' + COLUMN_AUTHOR_FIRST_NAME +
             ", " + COLUMN_AUTHOR_LAST_NAME + ", " + COLUMN_AUTHOR_NATIONALITY + ") VALUES(?, ?, ?)";
@@ -76,6 +57,14 @@ public class DataModel {
             TABLE_BOOKS_AUTHOR_VIEW + "." + COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + TABLE_BOOKS_AUTHOR_VIEW +
             "." + COLUMN_AUTHOR_LAST_NAME + " = ?";
 
+    public static final String UPDATE_AUTHOR = "UPDATE " + TABLE_AUTHOR + " SET " + COLUMN_AUTHOR_FIRST_NAME +
+            " = ?" + ", " + COLUMN_AUTHOR_LAST_NAME + " = ?" + ", " + COLUMN_AUTHOR_NATIONALITY +
+            " = ?" + " WHERE " + COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + COLUMN_AUTHOR_LAST_NAME + " = ?";
+
+    public static final String UPDATE_BOOK = "UPDATE " + TABLE_BOOK + " SET " + COLUMN_BOOK_TITLE +
+            " = ?" + ", " + COLUMN_BOOK_ISBN + " = ?" + ", " + COLUMN_BOOK_SUBJECT +
+            " = ?" + ", " + COLUMN_BOOK_PUBLICATION_DATE + " = ?" + " WHERE " + COLUMN_BOOK_TITLE + " = ?";
+
     private Connection conn;
 
     private PreparedStatement insertIntoAuthors;
@@ -84,6 +73,8 @@ public class DataModel {
     private PreparedStatement deleteFromBooks;
     private PreparedStatement deleteFromAuthors;
     private PreparedStatement countBooksByAuthor;
+    private PreparedStatement updateAuthors;
+    private PreparedStatement updateBooks;
 
     private static DataModel instance = new DataModel();
 
@@ -111,6 +102,8 @@ public class DataModel {
             deleteFromBooks = conn.prepareStatement(DELETE_BOOK);
             deleteFromAuthors = conn.prepareStatement(DELETE_AUTHOR);
             countBooksByAuthor = conn.prepareStatement(COUNT_BOOKS_BY_AUTHOR);
+            updateAuthors = conn.prepareStatement(UPDATE_AUTHOR);
+            updateBooks = conn.prepareStatement(UPDATE_BOOK);
 
             return true;
         } catch (SQLException e) {
@@ -149,6 +142,14 @@ public class DataModel {
                 countBooksByAuthor.close();
             }
 
+            if (updateAuthors != null) {
+                updateAuthors.close();
+            }
+
+            if (updateBooks != null) {
+                updateBooks.close();
+            }
+
             if (conn != null) {
                 conn.close();
             }
@@ -178,8 +179,10 @@ public class DataModel {
                 bookAuthor.setTitle(results.getString(1));
                 bookAuthor.setFirstName(results.getString(2));
                 bookAuthor.setLastName(results.getString(3));
-                bookAuthor.setSubject(results.getString(4));
-                bookAuthor.setPublicationDate(results.getInt(5));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
                 booksByAuthor.add(bookAuthor);
             }
 
@@ -368,6 +371,90 @@ public class DataModel {
         } finally {
             try {
                 System.out.println("Resetting default commit behavior.");
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.out.println("Couldn't reset auto-commit!" + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Updates the author that currently has the first_name = 'originalFirstName'
+     * and last_name = 'originalLastName' with the values that are sent as
+     * arguments to this method.
+     * @param originalFirstName
+     * @param originalLastName
+     * @param newFirstName
+     * @param newLastName
+     * @param nationality
+     */
+    private void updateAuthor(String originalFirstName, String originalLastName,
+                             String newFirstName, String newLastName, String nationality) {
+        try {
+            updateAuthors.setString(1, newFirstName);
+            updateAuthors.setString(2, newLastName);
+            updateAuthors.setString(3, nationality);
+            updateAuthors.setString(4, originalFirstName);
+            updateAuthors.setString(5, originalLastName);
+
+            int affectedRows = updateAuthors.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("Updating the author failed.");
+            }
+        } catch (Exception e) {
+            System.out.println("Update author exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * This method implements the transaction of updating a book in the database.
+     * It first updates the author and then the book. It needs to know the original
+     * name of the author and the original title of the book, in order to perform the update.
+     *
+     * @param originalTitle
+     * @param newTitle
+     * @param originalAuthorFirstName
+     * @param newAuthorFirstName
+     * @param originalAuthorLastName
+     * @param newAuthorLastName
+     * @param authorNationality
+     * @param ISBN
+     * @param subject
+     * @param publicationDate
+     */
+    public void updateBook(String originalTitle, String newTitle, String originalAuthorFirstName,
+                           String newAuthorFirstName, String originalAuthorLastName, String newAuthorLastName,
+                           String authorNationality, String ISBN, String subject, int publicationDate) {
+        try {
+            conn.setAutoCommit(false);
+
+            updateAuthor(originalAuthorFirstName, originalAuthorLastName,
+                    newAuthorFirstName, newAuthorLastName, authorNationality);
+
+            updateBooks.setString(1, newTitle);
+            updateBooks.setString(2, ISBN);
+            updateBooks.setString(3, subject);
+            updateBooks.setInt(4, publicationDate);
+            updateBooks.setString(5, originalTitle);
+
+            int affectedRows = updateBooks.executeUpdate();
+
+            if (affectedRows == 1) {
+                conn.commit();
+            } else {
+                throw new SQLException("Updating the book failed.");
+            }
+        } catch (Exception e) {
+            System.out.println("Update book exception: " + e.getMessage());
+            try {
+                System.out.println("Performing rollback.");
+                conn.rollback();
+            } catch (SQLException e2) {
+                System.out.println("Rollback failed: " + e2.getMessage());
+            }
+        } finally {
+            try {
                 conn.setAutoCommit(true);
             } catch (SQLException e) {
                 System.out.println("Couldn't reset auto-commit!" + e.getMessage());

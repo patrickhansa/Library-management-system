@@ -6,5 +6,6 @@ module LibraryManagementSystem {
     opens application;
     opens librarian_view;
     opens insert_book;
+    opens update_book;
     opens model;
 }
