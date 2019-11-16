@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import librarian_view.LibrarianViewController;
 import model.DataModel;
 
 public class LibraryManagementSystem extends Application {
@@ -15,8 +14,6 @@ public class LibraryManagementSystem extends Application {
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/librarian_view/librarianView.fxml"));
         Parent root = loader.load();
-        LibrarianViewController controller = loader.getController();
-        controller.listAll();
 
         primaryStage.setTitle("Library management system");
         primaryStage.setScene(new Scene(root, 1000, 600));
