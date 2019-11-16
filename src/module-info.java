@@ -8,5 +8,7 @@ module LibraryManagementSystem {
     opens librarian_view.insert_book;
     opens librarian_view.update_book;
     opens librarian_view.all_books;
+    opens librarian_view.available_books;
+    opens librarian_view.loaned_books;
     opens model;
 }

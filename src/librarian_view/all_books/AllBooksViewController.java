@@ -27,7 +27,7 @@ public class AllBooksViewController {
     @FXML
     /**
      * This method is called when the main .fxml is loaded. It displays all the
-     * books available in the database one the 'Available books' tab
+     * books available in the database on the 'All books' tab
      */
     public void initialize() {
         ObservableList<BookAuthor> bookAuthors = FXCollections.observableArrayList(DataModel.getInstance().getListOfBooksByAuthor());

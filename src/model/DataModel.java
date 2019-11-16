@@ -23,12 +23,15 @@ public class DataModel {
     public static final String COLUMN_BOOK_ISBN = "ISBN";
     public static final String COLUMN_BOOK_SUBJECT = "subject";
     public static final String COLUMN_BOOK_PUBLICATION_DATE = "publication_date";
-    public static final int INDEX_BOOK_ID = 1;
-    public static final int INDEX_BOOK_AUTHOR_ID = 2;
-    public static final int INDEX_BOOK_TITLE = 3;
-    public static final int INDEX_BOOK_ISBN = 4;
-    public static final int INDEX_BOOK_SUBJECT = 5;
-    public static final int INDEX_BOOK_PUBLICATION_DATE = 6;
+
+    public static final String TABLE_LOANED_BOOKS = "loaned_books";
+    public static final String COLUMN_LOANED_BOOKS_ID = "_id";
+    public static final String COLUMN_LOANED_BOOKS_MEMBER_ID = "member_id";
+    public static final String COLUMN_LOANED_BOOKS_BOOK_ID = "book_id";
+    public static final String COLUMN_LOANED_BOOKS_LOAN_DATE = "loan_date";
+    public static final String COLUMN_LOANED_BOOKS_DUE_DATE = "due_date";
+
+
 
     public static final int ORDER_BY_NONE = 1;
     public static final int ORDER_BY_ASC = 2;
@@ -64,6 +67,24 @@ public class DataModel {
     public static final String UPDATE_BOOK = "UPDATE " + TABLE_BOOK + " SET " + COLUMN_BOOK_TITLE +
             " = ?" + ", " + COLUMN_BOOK_ISBN + " = ?" + ", " + COLUMN_BOOK_SUBJECT +
             " = ?" + ", " + COLUMN_BOOK_PUBLICATION_DATE + " = ?" + " WHERE " + COLUMN_BOOK_TITLE + " = ?";
+
+    public static final String SELECT_AVAILABLE_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
+            ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
+            ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_NATIONALITY + ", " + TABLE_BOOK + "." + COLUMN_BOOK_ISBN +
+            ", " + TABLE_BOOK + "." + COLUMN_BOOK_SUBJECT + ", " + TABLE_BOOK + "." + COLUMN_BOOK_PUBLICATION_DATE +
+            " FROM " + TABLE_BOOK + " INNER JOIN " + TABLE_AUTHOR + " ON " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID +
+            " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID + " LEFT JOIN " + TABLE_LOANED_BOOKS + " ON " +
+            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_BOOK_ID +
+            " WHERE " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_ID + " IS NULL";
+
+    public static final String SELECT_LOANED_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
+            ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
+            ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_NATIONALITY + ", " + TABLE_BOOK + "." + COLUMN_BOOK_ISBN +
+            ", " + TABLE_BOOK + "." + COLUMN_BOOK_SUBJECT + ", " + TABLE_BOOK + "." + COLUMN_BOOK_PUBLICATION_DATE +
+            " FROM " + TABLE_BOOK + ", " + TABLE_AUTHOR + " INNER JOIN " + TABLE_LOANED_BOOKS + " ON " +
+            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID +
+            " AND " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID + " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID;
+
 
     private Connection conn;
 
@@ -188,6 +209,70 @@ public class DataModel {
 
             return booksByAuthor;
 
+        } catch (SQLException e) {
+            System.out.println("Query failed: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * This methods selects all the books that are not loaned
+     * by any member. It then populates a list of BookAuthor objects
+     * with this data.
+     * @return A list of the books in the database that have not been loaned
+     */
+    public List<BookAuthor> getListOfAvailableBooks() {
+
+        try (Statement statement = conn.createStatement();
+             ResultSet results = statement.executeQuery(SELECT_AVAILABLE_BOOKS)) {
+
+            List<BookAuthor> availableBooks = new ArrayList<>();
+
+            while (results.next()) {
+                BookAuthor bookAuthor = new BookAuthor();
+                bookAuthor.setTitle(results.getString(1));
+                bookAuthor.setFirstName(results.getString(2));
+                bookAuthor.setLastName(results.getString(3));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
+                availableBooks.add(bookAuthor);
+            }
+
+            return availableBooks;
+        } catch (SQLException e) {
+            System.out.println("Query failed: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * This methods selects all the books that are loaned.
+     * It then populates a list of BookAuthor objects
+     * with this data.
+     * @return A list of the books in the database that have been loaned
+     */
+    public List<BookAuthor> getListOfLoanedBooks() {
+
+        try (Statement statement = conn.createStatement();
+             ResultSet results = statement.executeQuery(SELECT_LOANED_BOOKS)) {
+
+            List<BookAuthor> loanedBooks = new ArrayList<>();
+
+            while (results.next()) {
+                BookAuthor bookAuthor = new BookAuthor();
+                bookAuthor.setTitle(results.getString(1));
+                bookAuthor.setFirstName(results.getString(2));
+                bookAuthor.setLastName(results.getString(3));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
+                loanedBooks.add(bookAuthor);
+            }
+
+            return loanedBooks;
         } catch (SQLException e) {
             System.out.println("Query failed: " + e.getMessage());
             return null;
