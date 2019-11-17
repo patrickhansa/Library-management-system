@@ -31,6 +31,13 @@ public class DataModel {
     public static final String COLUMN_LOANED_BOOKS_LOAN_DATE = "loan_date";
     public static final String COLUMN_LOANED_BOOKS_DUE_DATE = "due_date";
 
+    public static final String TABLE_MEMBER = "member";
+    public static final String COLUMN_MEMBER_ID = "_id";
+    public static final String COLUMN_MEMBER_FIRST_NAME = "first_name";
+    public static final String COLUMN_MEMBER_LAST_NAME = "last_name";
+    public static final String COLUMN_MEMBER_ADDRESS = "address";
+    public static final String COLUMN_MEMBER_EMAIL = "email";
+    public static final String COLUMN_MEMBER_PHONE = "phone";
 
 
     public static final int ORDER_BY_NONE = 1;
@@ -45,6 +52,10 @@ public class DataModel {
     public static final String INSERT_BOOK = "INSERT INTO " + TABLE_BOOK + '(' + COLUMN_BOOK_AUTHOR_ID +
             ", " + COLUMN_BOOK_TITLE + ", " + COLUMN_BOOK_ISBN + ", " + COLUMN_BOOK_SUBJECT + ", " +
             COLUMN_BOOK_PUBLICATION_DATE + ") VALUES(?, ?, ?, ?, ?)";
+
+    public static final String INSERT_LOANED_BOOK = "INSERT INTO " + TABLE_LOANED_BOOKS + '(' + COLUMN_LOANED_BOOKS_MEMBER_ID +
+            ", " + COLUMN_LOANED_BOOKS_BOOK_ID + ", " + COLUMN_LOANED_BOOKS_LOAN_DATE + ", " + COLUMN_LOANED_BOOKS_DUE_DATE +
+            ") VALUES(?, ?, ?, ?)";
 
     public static final String QUERY_AUTHOR = "SELECT " + COLUMN_AUTHOR_ID + " FROM " +
             TABLE_AUTHOR + " WHERE " + COLUMN_AUTHOR_FIRST_NAME + " = ?" + " AND " + COLUMN_AUTHOR_LAST_NAME +
@@ -74,7 +85,7 @@ public class DataModel {
             ", " + TABLE_BOOK + "." + COLUMN_BOOK_SUBJECT + ", " + TABLE_BOOK + "." + COLUMN_BOOK_PUBLICATION_DATE +
             " FROM " + TABLE_BOOK + " INNER JOIN " + TABLE_AUTHOR + " ON " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID +
             " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID + " LEFT JOIN " + TABLE_LOANED_BOOKS + " ON " +
-            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_BOOK_ID +
+            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID +
             " WHERE " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_ID + " IS NULL";
 
     public static final String SELECT_LOANED_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
@@ -85,17 +96,26 @@ public class DataModel {
             TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID +
             " AND " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID + " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID;
 
+    public static final String SELECT_MEMBER_ID_BY_NAME = "SELECT " + TABLE_MEMBER + "." + COLUMN_MEMBER_ID +
+            " FROM " + TABLE_MEMBER + " WHERE " + TABLE_MEMBER + "." + COLUMN_MEMBER_FIRST_NAME + " = ?" +
+            " AND " + TABLE_MEMBER + "." + COLUMN_MEMBER_LAST_NAME + " = ?";
+
+    public static final String SELECT_BOOK_ID_BY_TITLE = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_ID +
+            " FROM " + TABLE_BOOK + " WHERE " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE + " = ?";
 
     private Connection conn;
 
     private PreparedStatement insertIntoAuthors;
     private PreparedStatement insertIntoBooks;
+    private PreparedStatement insertIntoLoanedBooks;
     private PreparedStatement queryAuthor;
     private PreparedStatement deleteFromBooks;
     private PreparedStatement deleteFromAuthors;
     private PreparedStatement countBooksByAuthor;
     private PreparedStatement updateAuthors;
     private PreparedStatement updateBooks;
+    private PreparedStatement selectMemberIdByName;
+    private PreparedStatement selectBookIdByTitle;
 
     private static DataModel instance = new DataModel();
 
@@ -125,6 +145,9 @@ public class DataModel {
             countBooksByAuthor = conn.prepareStatement(COUNT_BOOKS_BY_AUTHOR);
             updateAuthors = conn.prepareStatement(UPDATE_AUTHOR);
             updateBooks = conn.prepareStatement(UPDATE_BOOK);
+            selectMemberIdByName = conn.prepareStatement(SELECT_MEMBER_ID_BY_NAME);
+            selectBookIdByTitle = conn.prepareStatement(SELECT_BOOK_ID_BY_TITLE);
+            insertIntoLoanedBooks = conn.prepareStatement(INSERT_LOANED_BOOK);
 
             return true;
         } catch (SQLException e) {
@@ -169,6 +192,18 @@ public class DataModel {
 
             if (updateBooks != null) {
                 updateBooks.close();
+            }
+
+            if (selectMemberIdByName != null) {
+                selectMemberIdByName.close();
+            }
+
+            if (selectBookIdByTitle != null) {
+                selectBookIdByTitle.close();
+            }
+
+            if (insertIntoLoanedBooks != null) {
+                insertIntoLoanedBooks.close();
             }
 
             if (conn != null) {
@@ -544,6 +579,86 @@ public class DataModel {
             } catch (SQLException e) {
                 System.out.println("Couldn't reset auto-commit!" + e.getMessage());
             }
+        }
+    }
+
+    /**
+     * This method is used for getting the ID of a member when the
+     * first and last names are known.
+     *
+     * @param firstName
+     * @param lastName
+     * @return _id of the member
+     */
+    private int selectMemberIdByName(String firstName, String lastName) {
+        int memberId;
+
+        try {
+            selectMemberIdByName.setString(1, firstName);
+            selectMemberIdByName.setString(2, lastName);
+
+            ResultSet results = selectMemberIdByName.executeQuery();
+
+            memberId = results.getInt(1);
+            return memberId;
+        } catch (Exception e) {
+            System.out.println("Get member ID exception: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * This method is used for getting the ID of a book when the
+     * title is known.
+     *
+     * @param title
+     * @return _id of the book
+     */
+    private int selectBookIdByTitle(String title) {
+        int bookId;
+
+        try {
+            selectBookIdByTitle.setString(1, title);
+
+            ResultSet results = selectBookIdByTitle.executeQuery();
+
+            bookId = results.getInt(1);
+            return bookId;
+        } catch (Exception e) {
+            System.out.println("Get book ID exception: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * This method is used for inserting a loaned book in the library.db.
+     *
+     * @param title
+     * @param memberFirstName
+     * @param memberLastName
+     * @param loanDate
+     * @param dueDate
+     */
+    public void insertLoanedBook(String title, String memberFirstName,
+                                  String memberLastName, String loanDate, String dueDate) {
+
+        int memberId = selectMemberIdByName(memberFirstName, memberLastName);
+        int bookId = selectBookIdByTitle(title);
+
+        try {
+
+            insertIntoLoanedBooks.setInt(1, memberId);
+            insertIntoLoanedBooks.setInt(2, bookId);
+            insertIntoLoanedBooks.setString(3, loanDate);
+            insertIntoLoanedBooks.setString(4, dueDate);
+
+            int affectedRows = insertIntoLoanedBooks.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("Inserting the loaned book failed.");
+            }
+        } catch (Exception e) {
+            System.out.println("Insert loaned book exception: " + e.getMessage());
         }
     }
 }

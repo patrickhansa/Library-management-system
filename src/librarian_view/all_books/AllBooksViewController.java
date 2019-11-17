@@ -13,7 +13,6 @@ import librarian_view.insert_book.InsertBookDialogController;
 import librarian_view.update_book.UpdateBookDialogController;
 import model.BookAuthor;
 import model.DataModel;
-
 import java.io.IOException;
 import java.util.Optional;
 
@@ -27,7 +26,7 @@ public class AllBooksViewController {
     @FXML
     /**
      * This method is called when the main .fxml is loaded. It displays all the
-     * books available in the database on the 'All books' tab
+     * books available in the database on the 'All books' tab.
      */
     public void initialize() {
         ObservableList<BookAuthor> bookAuthors = FXCollections.observableArrayList(DataModel.getInstance().getListOfBooksByAuthor());
@@ -146,16 +145,16 @@ public class AllBooksViewController {
         // make sure that the view is also updated
         listAll();
     }
-}
 
-/**
- * This task is used for getting the list of books that is displayed on
- * the librarian view.
- */
-class GetAllBooksAndAuthorsTask extends Task {
-    @Override
-    public ObservableList<BookAuthor> call() {
-        return FXCollections.observableArrayList(
-                DataModel.getInstance().getListOfBooksByAuthor());
+    /**
+     * This task is used for getting the list of books that is displayed on
+     * the librarian view.
+     */
+    class GetAllBooksAndAuthorsTask extends Task {
+        @Override
+        public ObservableList<BookAuthor> call() {
+            return FXCollections.observableArrayList(
+                    DataModel.getInstance().getListOfBooksByAuthor());
+        }
     }
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/8.0.172-ea"
+            fx:controller="librarian_view.issue_book.IssueBookDialogController">
+    <headerText>
+        Issue a book
+    </headerText>
+    <content>
+        <GridPane vgap="10" hgap="10">
+            <Label text="Member's first name: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="memberFirstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Member's last name: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="memberLastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        </GridPane>
+    </content>
+</DialogPane>

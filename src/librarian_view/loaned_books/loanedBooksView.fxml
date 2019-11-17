@@ -5,11 +5,14 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextArea?>
 
 <Tab xmlns:fx="http://javafx.com/fxml/1"
      xmlns="http://javafx.com/javafx/8.0.172-ea"
      fx:controller="librarian_view.loaned_books.LoanedBooksViewController"
-     text="Loaned books">
+     text="Loaned books" onSelectionChanged="#listLoanedBooks">
     <BorderPane fx:id="mainBorderPane" prefHeight="294.0" prefWidth="339.0">
         <center>
             <TableView fx:id="table" editable="true" prefWidth="600" BorderPane.alignment="CENTER">
@@ -53,7 +56,10 @@
             </TableView>
         </center>
         <right>
-
+            <VBox alignment="CENTER" spacing="20" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+                <TextArea/>
+                <Button text="Checkout book"/>
+            </VBox>
         </right>
     </BorderPane>
 </Tab>
