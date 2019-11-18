@@ -11,5 +11,7 @@ module LibraryManagementSystem {
     opens librarian_view.available_books;
     opens librarian_view.loaned_books;
     opens librarian_view.issue_book;
+    opens librarian_view.member;
+    opens librarian_view.insert_member;
     opens model;
 }

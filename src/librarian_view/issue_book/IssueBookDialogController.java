@@ -20,7 +20,7 @@ public class IssueBookDialogController {
      */
     public void processResults(String title) {
         // Set the loan date as the current day and
-        // the loan day as 2 weeks from today
+        // the due date as 2 weeks from today
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         Calendar c = Calendar.getInstance();
         Date loanDate = c.getTime();        // Use today's date

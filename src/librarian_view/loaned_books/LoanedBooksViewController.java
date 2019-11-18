@@ -14,7 +14,27 @@ public class LoanedBooksViewController {
     BorderPane mainBorderPane;
 
     @FXML
-    TableView table;
+    TableView<BookAuthor> table;
+
+    @FXML
+    /**
+     * Called when the user presses the 'Return book' button. It removes the currently
+     * selected loaned book from the database.
+     */
+    public void deleteLoanedBook() {
+        final BookAuthor bookAuthor = table.getSelectionModel().getSelectedItem();
+
+        if (bookAuthor == null) {
+            System.out.println("No book selected!");
+            return;
+        }
+
+        DataModel.getInstance().deleteLoanedBook(bookAuthor.getTitle());
+
+        // After the delete operation was successfully performed on the database,
+        // make sure that the view is also updated
+        listLoanedBooks();
+    }
 
     @FXML
     /**

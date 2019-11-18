@@ -6,5 +6,6 @@
     <fx:include source="../librarian_view/all_books/allBooksView.fxml"/>
     <fx:include source="../librarian_view/available_books/availableBooksView.fxml"/>
     <fx:include source="../librarian_view/loaned_books/loanedBooksView.fxml"/>
+    <fx:include source="../librarian_view/member/memberView.fxml"/>
 
 </TabPane>
