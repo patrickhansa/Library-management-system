@@ -1,4 +1,4 @@
-package librarian_view.member;
+package view.librarian_view.member;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -7,7 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import librarian_view.insert_member.InsertMemberDialogController;
+import view.librarian_view.insert_member.InsertMemberDialogController;
 import model.DataModel;
 import model.LoanedBook;
 import model.Member;
@@ -76,7 +76,7 @@ public class MemberViewController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/librarian_view/insert_member/insertMemberDialog.fxml"));
+        fxmlLoader.setLocation(getClass().getResource("/view/librarian_view/insert_member/insertMemberDialog.fxml"));
 
         try {
             dialog.getDialogPane().setContent(fxmlLoader.load());

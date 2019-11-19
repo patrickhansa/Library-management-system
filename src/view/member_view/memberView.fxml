@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView layoutX="2.0" layoutY="1.0" prefHeight="588.0" prefWidth="702.0">
+        <columns>
+          <TableColumn prefWidth="75.0" text="C1" />
+          <TableColumn prefWidth="75.0" text="C2" />
+        </columns>
+      </TableView>
+      <Label layoutX="706.0" layoutY="2.0" prefHeight="196.0" prefWidth="285.0" text="Account information here" />
+      <Button layoutX="858.0" layoutY="198.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="112.0" text="Edit account" />
+      <Button layoutX="806.0" layoutY="328.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Search book" />
+      <Button layoutX="806.0" layoutY="372.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Loan book" />
+      <Button layoutX="806.0" layoutY="416.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Return book" />
+   </children>
+</AnchorPane>

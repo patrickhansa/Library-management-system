@@ -1,19 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<DialogPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="librarian_view.update_book.UpdateBookDialogController"
-            prefWidth="500">
+<DialogPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/8.0.172-ea"
+            fx:controller="view.librarian_view.insert_book.InsertBookDialogController">
     <headerText>
-        Update book
+        Insert a new book
     </headerText>
     <content>
         <GridPane vgap="10" hgap="10">
             <Label text="Title: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
+            <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
             <Label text="Author's first name: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
             <TextField fx:id="authorFirstNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
             <Label text="Author's last name: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>

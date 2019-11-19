@@ -1,4 +1,4 @@
-package librarian_view.update_book;
+package view.librarian_view.update_book;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;

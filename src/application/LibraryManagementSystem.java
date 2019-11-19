@@ -12,11 +12,11 @@ public class LibraryManagementSystem extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/librarian_view/librarianView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view/loginView.fxml"));
         Parent root = loader.load();
 
         primaryStage.setTitle("Library management system");
-        primaryStage.setScene(new Scene(root, 1000, 600));
+        primaryStage.setScene(new Scene(root, 360, 300));
         primaryStage.show();
     }
 

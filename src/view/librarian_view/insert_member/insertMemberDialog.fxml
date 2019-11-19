@@ -7,7 +7,7 @@
 
 <DialogPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/8.0.172-ea"
-            fx:controller="librarian_view.insert_member.InsertMemberDialogController">
+            fx:controller="view.librarian_view.insert_member.InsertMemberDialogController">
     <headerText>
         Add a new member
     </headerText>

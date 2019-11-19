@@ -39,6 +39,17 @@ public class DataModel {
     public static final String COLUMN_MEMBER_EMAIL = "email";
     public static final String COLUMN_MEMBER_PHONE = "phone";
 
+    public static final String TABLE_LIBRARIAN = "librarian";
+    public static final String COLUMN_LIBRARIAN_ID = "_id";
+    public static final String COLUMN_LIBRARIAN_FIRST_NAME = "first_name";
+    public static final String COLUMN_LIBRARIAN_LAST_NAME = "last_name";
+    public static final String COLUMN_LIBRARIAN_EMAIL = "email";
+    public static final String COLUMN_LIBRARIAN_PHONE = "phone";
+
+    public static final String TABLE_PASSWORD = "password";
+    public static final String COLUMN_PASSWORD_LIBRARIAN_ID = "librarian_id";
+    public static final String COLUMN_PASSWORD_MEMBER_ID = "member_id";
+    public static final String COLUMN_PASSWORD_PASSWORD = "password";
 
     public static final int ORDER_BY_NONE = 1;
     public static final int ORDER_BY_ASC = 2;
@@ -107,6 +118,10 @@ public class DataModel {
             " FROM " + TABLE_MEMBER + " WHERE " + TABLE_MEMBER + "." + COLUMN_MEMBER_FIRST_NAME + " = ?" +
             " AND " + TABLE_MEMBER + "." + COLUMN_MEMBER_LAST_NAME + " = ?";
 
+    public static final String SELECT_LIBRARIAN_ID_BY_NAME = "SELECT " + TABLE_LIBRARIAN + "." + COLUMN_LIBRARIAN_ID +
+            " FROM " + TABLE_LIBRARIAN + " WHERE " + TABLE_LIBRARIAN + "." + COLUMN_LIBRARIAN_FIRST_NAME + " = ?" +
+            " AND " + TABLE_LIBRARIAN + "." + COLUMN_LIBRARIAN_LAST_NAME + " = ?";
+
     public static final String SELECT_BOOK_ID_BY_TITLE = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_ID +
             " FROM " + TABLE_BOOK + " WHERE " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE + " = ?";
 
@@ -117,6 +132,12 @@ public class DataModel {
             + ", " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_LOAN_DATE + ", " + TABLE_LOANED_BOOKS + "." +
             COLUMN_LOANED_BOOKS_DUE_DATE + " FROM " + TABLE_LOANED_BOOKS + " WHERE " + TABLE_LOANED_BOOKS + "." +
             COLUMN_LOANED_BOOKS_MEMBER_ID + " = ?";
+
+    public static final String SELECT_LIBRARIAN_PASSWORD_BY_ID = "SELECT " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_PASSWORD +
+            " FROM " + TABLE_PASSWORD + " WHERE " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_LIBRARIAN_ID + " = ?";
+
+    public static final String SELECT_MEMBER_PASSWORD_BY_ID = "SELECT " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_PASSWORD +
+            " FROM " + TABLE_PASSWORD + " WHERE " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_MEMBER_ID + " = ?";
 
     private Connection conn;
 
@@ -132,9 +153,12 @@ public class DataModel {
     private PreparedStatement updateAuthors;
     private PreparedStatement updateBooks;
     private PreparedStatement selectMemberIdByName;
+    private PreparedStatement selectLibrarianIdByName;
     private PreparedStatement selectBookIdByTitle;
     private PreparedStatement selectBookIdLoanDateDueDate;
     private PreparedStatement selectBookTitleById;
+    private PreparedStatement selectLibrarianPasswordById;
+    private PreparedStatement selectMemberPasswordById;
 
     private static DataModel instance = new DataModel();
 
@@ -147,7 +171,7 @@ public class DataModel {
     /**
      * This method is used for connecting to the library database
      * and for initialising the prepared statements. It is called
-     * when the application is started.
+     * when the view.application is started.
      *
      * @return true if the connection was successful
      *         false if the connection failed
@@ -168,9 +192,12 @@ public class DataModel {
             updateAuthors = conn.prepareStatement(UPDATE_AUTHOR);
             updateBooks = conn.prepareStatement(UPDATE_BOOK);
             selectMemberIdByName = conn.prepareStatement(SELECT_MEMBER_ID_BY_NAME);
+            selectLibrarianIdByName = conn.prepareStatement(SELECT_LIBRARIAN_ID_BY_NAME);
             selectBookIdByTitle = conn.prepareStatement(SELECT_BOOK_ID_BY_TITLE);
             selectBookIdLoanDateDueDate = conn.prepareStatement(SELECT_BOOK_ID_LOAN_DATE_DUE_DATE);
             selectBookTitleById = conn.prepareStatement(SELECT_BOOK_TITLE_BY_ID);
+            selectLibrarianPasswordById = conn.prepareStatement(SELECT_LIBRARIAN_PASSWORD_BY_ID);
+            selectMemberPasswordById = conn.prepareStatement(SELECT_MEMBER_PASSWORD_BY_ID);
 
             return true;
         } catch (SQLException e) {
@@ -181,7 +208,7 @@ public class DataModel {
 
     /**
      * This method is used for closing the connection to the library.db.
-     * It is called when the application is closed.
+     * It is called when the view.application is closed.
      */
     public void close() {
         try {
@@ -233,6 +260,10 @@ public class DataModel {
                 selectMemberIdByName.close();
             }
 
+            if (selectLibrarianIdByName != null) {
+                selectLibrarianIdByName.close();
+            }
+
             if (selectBookIdByTitle != null) {
                 selectBookIdByTitle.close();
             }
@@ -243,6 +274,14 @@ public class DataModel {
 
             if (selectBookTitleById != null) {
                 selectBookTitleById.close();
+            }
+
+            if (selectLibrarianPasswordById != null) {
+                selectLibrarianPasswordById.close();
+            }
+
+            if (selectMemberPasswordById != null) {
+                selectMemberPasswordById.close();
             }
 
             if (conn != null) {
@@ -762,10 +801,48 @@ public class DataModel {
 
             ResultSet results = selectMemberIdByName.executeQuery();
 
-            memberId = results.getInt(1);
-            return memberId;
+            if (results.next()) {
+                // The query returned some value
+                memberId = results.getInt(1);
+                return memberId;
+            } else {
+                // The query didn't return any value
+                return 0;
+            }
+
         } catch (Exception e) {
             System.out.println("Get member ID exception: " + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * This method is used for getting the ID of a librarian when the
+     * first and last names are known.
+     *
+     * @param firstName
+     * @param lastName
+     * @return _id of the librarian
+     */
+    private int selectLibrarianIdByName(String firstName, String lastName) {
+        int librarianId;
+
+        try {
+            selectLibrarianIdByName.setString(1, firstName);
+            selectLibrarianIdByName.setString(2, lastName);
+
+            ResultSet results = selectLibrarianIdByName.executeQuery();
+
+            if (results.next()) {
+                // The query returned some value
+                librarianId = results.getInt(1);
+                return librarianId;
+            } else {
+                // The query didn't return any value
+                return 0;
+            }
+        } catch (Exception e) {
+            System.out.println("Get librarian ID exception: " + e.getMessage());
             return -1;
         }
     }
@@ -846,5 +923,101 @@ public class DataModel {
         } catch (Exception e) {
             System.out.println("Insert loaned book exception: " + e.getMessage());
         }
+    }
+
+    /**
+     * This method is used for deciding what kind is the account
+     * of the user with the name given as argument.
+     *
+     * @param firstName
+     * @param lastName
+     * @return the AccountType
+     */
+    public AccountType getAccountType(String firstName, String lastName) {
+        int librarianId = selectLibrarianIdByName(firstName, lastName);
+        int memberId = selectMemberIdByName(firstName, lastName);
+
+        if (librarianId != 0) {
+            return AccountType.LIBRARIAN;
+        } else if (memberId != 0) {
+            return AccountType.MEMBER;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Used for getting the password associated with a librarian's account.
+     *
+     * @param librarianId
+     * @return the password as a String
+     */
+    private String selectLibrarianPasswordById(int librarianId) {
+        String password;
+
+        try {
+            selectLibrarianPasswordById.setInt(1, librarianId);
+
+            ResultSet results = selectLibrarianPasswordById.executeQuery();
+
+            password = results.getString(1);
+            return password;
+        } catch (Exception e) {
+            System.out.println("Select librarian password exception: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Used for getting the password associated with a member's account.
+     *
+     * @param librarianId
+     * @return the password as a String
+     */
+    private String selectMemberPasswordById(int librarianId) {
+        String password;
+
+        try {
+            selectMemberPasswordById.setInt(1, librarianId);
+
+            ResultSet results = selectMemberPasswordById.executeQuery();
+
+            password = results.getString(1);
+            return password;
+        } catch (Exception e) {
+            System.out.println("Select member password exception: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Used for getting the password of the librarian from the password table.
+     *
+     * @param firstName
+     * @param lastName
+     * @return the password as a String
+     */
+    public String getLibrarianPassword(String firstName, String lastName) {
+        int librarianId = selectLibrarianIdByName(firstName, lastName);
+
+        return selectLibrarianPasswordById(librarianId);
+    }
+
+    /**
+     * Used for getting the password of the member from the password table.
+     *
+     * @param firstName
+     * @param lastName
+     * @return
+     */
+    public String getMemberPassword(String firstName, String lastName) {
+        int memberId = selectMemberIdByName(firstName, lastName);
+
+        return selectMemberPasswordById(memberId);
+    }
+
+    public enum AccountType {
+        LIBRARIAN,
+        MEMBER
     }
 }

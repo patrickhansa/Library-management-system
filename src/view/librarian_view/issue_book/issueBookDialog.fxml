@@ -5,7 +5,7 @@
 
 <DialogPane xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/8.0.172-ea"
-            fx:controller="librarian_view.issue_book.IssueBookDialogController">
+            fx:controller="view.librarian_view.issue_book.IssueBookDialogController">
     <headerText>
         Issue a book
     </headerText>

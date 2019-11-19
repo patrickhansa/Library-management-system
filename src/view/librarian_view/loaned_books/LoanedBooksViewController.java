@@ -1,4 +1,4 @@
-package librarian_view.loaned_books;
+package view.librarian_view.loaned_books;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

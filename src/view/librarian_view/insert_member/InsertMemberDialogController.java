@@ -1,4 +1,4 @@
-package librarian_view.insert_member;
+package view.librarian_view.insert_member;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;

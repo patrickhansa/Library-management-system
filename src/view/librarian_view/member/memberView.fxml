@@ -6,7 +6,7 @@
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <Tab xmlns:fx="http://javafx.com/fxml/1"
      xmlns="http://javafx.com/javafx/8.0.172-ea"
-     fx:controller="librarian_view.member.MemberViewController"
+     fx:controller="view.librarian_view.member.MemberViewController"
      text="Members" onSelectionChanged="#listAllMembers">
     <BorderPane fx:id="mainBorderPane" prefHeight="294.0" prefWidth="339.0">
         <left>

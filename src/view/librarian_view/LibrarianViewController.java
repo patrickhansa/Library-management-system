@@ -1,4 +1,4 @@
-package librarian_view;
+package view.librarian_view;
 
 public class LibrarianViewController {
 }

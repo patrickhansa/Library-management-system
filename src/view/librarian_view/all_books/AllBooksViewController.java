@@ -1,4 +1,4 @@
-package librarian_view.all_books;
+package view.librarian_view.all_books;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,8 +9,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import librarian_view.insert_book.InsertBookDialogController;
-import librarian_view.update_book.UpdateBookDialogController;
+import view.librarian_view.insert_book.InsertBookDialogController;
+import view.librarian_view.update_book.UpdateBookDialogController;
 import model.BookAuthor;
 import model.DataModel;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class AllBooksViewController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/librarian_view/insert_book/insertBookDialog.fxml"));
+        fxmlLoader.setLocation(getClass().getResource("/view/librarian_view/insert_book/insertBookDialog.fxml"));
 
         try {
             dialog.getDialogPane().setContent(fxmlLoader.load());
@@ -89,7 +89,7 @@ public class AllBooksViewController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("/librarian_view/update_book/updateBookDialog.fxml"));
+        fxmlLoader.setLocation(getClass().getResource("/view/librarian_view/update_book/updateBookDialog.fxml"));
 
         try {
             dialog.getDialogPane().setContent(fxmlLoader.load());
