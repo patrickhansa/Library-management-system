@@ -11,8 +11,9 @@ import model.DataModel;
 public class LibraryManagementSystem extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view/loginView.fxml"));
+
         Parent root = loader.load();
 
         primaryStage.setTitle("Library management system");

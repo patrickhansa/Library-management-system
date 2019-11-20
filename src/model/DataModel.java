@@ -97,6 +97,11 @@ public class DataModel {
             " = ?" + ", " + COLUMN_BOOK_ISBN + " = ?" + ", " + COLUMN_BOOK_SUBJECT +
             " = ?" + ", " + COLUMN_BOOK_PUBLICATION_DATE + " = ?" + " WHERE " + COLUMN_BOOK_TITLE + " = ?";
 
+    public static final String UPDATE_MEMBER = "UPDATE " + TABLE_MEMBER + " SET " + COLUMN_MEMBER_FIRST_NAME +
+            " = ?" + ", " + COLUMN_MEMBER_LAST_NAME + " = ?" + ", " + COLUMN_MEMBER_ADDRESS +
+            " = ?" + ", " + COLUMN_MEMBER_EMAIL + " = ?" + ", " + COLUMN_MEMBER_PHONE + " = ?" +
+            " WHERE " + COLUMN_MEMBER_FIRST_NAME + " = ?" + " AND " + COLUMN_MEMBER_LAST_NAME + " = ?";
+
     public static final String SELECT_AVAILABLE_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
             ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
             ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_NATIONALITY + ", " + TABLE_BOOK + "." + COLUMN_BOOK_ISBN +
@@ -114,9 +119,8 @@ public class DataModel {
             TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID +
             " AND " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID + " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID;
 
-    public static final String SELECT_MEMBER_ID_BY_NAME = "SELECT " + TABLE_MEMBER + "." + COLUMN_MEMBER_ID +
-            " FROM " + TABLE_MEMBER + " WHERE " + TABLE_MEMBER + "." + COLUMN_MEMBER_FIRST_NAME + " = ?" +
-            " AND " + TABLE_MEMBER + "." + COLUMN_MEMBER_LAST_NAME + " = ?";
+    public static final String SELECT_BOOKS_LOANED_BY_MEMBER = SELECT_LOANED_BOOKS + " WHERE " + TABLE_LOANED_BOOKS +
+            "." + COLUMN_LOANED_BOOKS_MEMBER_ID + " = ?";
 
     public static final String SELECT_LIBRARIAN_ID_BY_NAME = "SELECT " + TABLE_LIBRARIAN + "." + COLUMN_LIBRARIAN_ID +
             " FROM " + TABLE_LIBRARIAN + " WHERE " + TABLE_LIBRARIAN + "." + COLUMN_LIBRARIAN_FIRST_NAME + " = ?" +
@@ -128,7 +132,7 @@ public class DataModel {
     public static final String SELECT_BOOK_TITLE_BY_ID = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
             " FROM " + TABLE_BOOK + " WHERE " + TABLE_BOOK + "." + COLUMN_BOOK_ID + " = ?";
 
-    public static final String SELECT_BOOK_ID_LOAN_DATE_DUE_DATE = "SELECT " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID
+    public static final String SELECT_BOOK_ID_LOAN_DATE_DUE_DATE_BY_MEMBER_ID = "SELECT " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID
             + ", " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_LOAN_DATE + ", " + TABLE_LOANED_BOOKS + "." +
             COLUMN_LOANED_BOOKS_DUE_DATE + " FROM " + TABLE_LOANED_BOOKS + " WHERE " + TABLE_LOANED_BOOKS + "." +
             COLUMN_LOANED_BOOKS_MEMBER_ID + " = ?";
@@ -138,6 +142,14 @@ public class DataModel {
 
     public static final String SELECT_MEMBER_PASSWORD_BY_ID = "SELECT " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_PASSWORD +
             " FROM " + TABLE_PASSWORD + " WHERE " + TABLE_PASSWORD + "." + COLUMN_PASSWORD_MEMBER_ID + " = ?";
+
+    public static final String SELECT_MEMBER_BY_NAME = "SELECT * FROM " + TABLE_MEMBER + " WHERE " + TABLE_MEMBER + "." +
+            COLUMN_MEMBER_FIRST_NAME + " = ?" + " AND " + TABLE_MEMBER + "." + COLUMN_MEMBER_LAST_NAME + " = ?";
+
+    public static final String SELECT_DUE_DATE_BY_BOOK_ID = "SELECT " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_DUE_DATE +
+            " FROM " + TABLE_LOANED_BOOKS + " WHERE " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID + " = ?";
+
+
 
     private Connection conn;
 
@@ -152,18 +164,31 @@ public class DataModel {
     private PreparedStatement countBooksByAuthor;
     private PreparedStatement updateAuthors;
     private PreparedStatement updateBooks;
-    private PreparedStatement selectMemberIdByName;
+    private PreparedStatement updateMembers;
     private PreparedStatement selectLibrarianIdByName;
     private PreparedStatement selectBookIdByTitle;
     private PreparedStatement selectBookIdLoanDateDueDate;
     private PreparedStatement selectBookTitleById;
     private PreparedStatement selectLibrarianPasswordById;
     private PreparedStatement selectMemberPasswordById;
+    private PreparedStatement selectMemberByName;
+    private PreparedStatement selectDueDateByBookId;
+    private PreparedStatement selectBooksLoanedByMember;
+
+    private Member currentlyLoggedMember;
 
     private static DataModel instance = new DataModel();
 
     private DataModel() {
 
+    }
+
+    public Member getCurrentlyLoggedMember() {
+        return currentlyLoggedMember;
+    }
+
+    public void setCurrentlyLoggedMember(Member currentlyLoggedMember) {
+        this.currentlyLoggedMember = currentlyLoggedMember;
     }
 
     public static DataModel getInstance() { return instance; }
@@ -191,13 +216,16 @@ public class DataModel {
             countBooksByAuthor = conn.prepareStatement(COUNT_BOOKS_BY_AUTHOR);
             updateAuthors = conn.prepareStatement(UPDATE_AUTHOR);
             updateBooks = conn.prepareStatement(UPDATE_BOOK);
-            selectMemberIdByName = conn.prepareStatement(SELECT_MEMBER_ID_BY_NAME);
+            updateMembers = conn.prepareStatement(UPDATE_MEMBER);
             selectLibrarianIdByName = conn.prepareStatement(SELECT_LIBRARIAN_ID_BY_NAME);
             selectBookIdByTitle = conn.prepareStatement(SELECT_BOOK_ID_BY_TITLE);
-            selectBookIdLoanDateDueDate = conn.prepareStatement(SELECT_BOOK_ID_LOAN_DATE_DUE_DATE);
+            selectBookIdLoanDateDueDate = conn.prepareStatement(SELECT_BOOK_ID_LOAN_DATE_DUE_DATE_BY_MEMBER_ID);
             selectBookTitleById = conn.prepareStatement(SELECT_BOOK_TITLE_BY_ID);
             selectLibrarianPasswordById = conn.prepareStatement(SELECT_LIBRARIAN_PASSWORD_BY_ID);
             selectMemberPasswordById = conn.prepareStatement(SELECT_MEMBER_PASSWORD_BY_ID);
+            selectMemberByName = conn.prepareStatement(SELECT_MEMBER_BY_NAME);
+            selectDueDateByBookId = conn.prepareStatement(SELECT_DUE_DATE_BY_BOOK_ID);
+            selectBooksLoanedByMember = conn.prepareStatement(SELECT_BOOKS_LOANED_BY_MEMBER);
 
             return true;
         } catch (SQLException e) {
@@ -256,8 +284,8 @@ public class DataModel {
                 updateBooks.close();
             }
 
-            if (selectMemberIdByName != null) {
-                selectMemberIdByName.close();
+            if (updateMembers != null) {
+                updateMembers.close();
             }
 
             if (selectLibrarianIdByName != null) {
@@ -282,6 +310,18 @@ public class DataModel {
 
             if (selectMemberPasswordById != null) {
                 selectMemberPasswordById.close();
+            }
+
+            if (selectMemberByName != null) {
+                selectMemberByName.close();
+            }
+
+            if (selectDueDateByBookId != null) {
+                selectDueDateByBookId.close();
+            }
+
+            if (selectBooksLoanedByMember != null) {
+                selectBooksLoanedByMember.close();
             }
 
             if (conn != null) {
@@ -393,6 +433,44 @@ public class DataModel {
     }
 
     /**
+     * Used for getting a list of BookAuthor objects that represent
+     * the books that are currently loaned by the member whose
+     * name was given as an argument to this method.
+     *
+     * @param firstName of the member
+     * @param lastName of the member
+     * @return the list of all the books loaned by the member
+     *         null if the query failed
+     */
+    public List<BookAuthor> getListOfBooksLoanedByMember(String firstName, String lastName) {
+        Member member = selectMemberByName(firstName, lastName);
+        List<BookAuthor> loanedBooks = new ArrayList<>();
+
+        try {
+            selectBooksLoanedByMember.setInt(1, member.get_id());
+
+            ResultSet results = selectBooksLoanedByMember.executeQuery();
+
+            while (results.next()) {
+                BookAuthor bookAuthor = new BookAuthor();
+                bookAuthor.setTitle(results.getString(1));
+                bookAuthor.setFirstName(results.getString(2));
+                bookAuthor.setLastName(results.getString(3));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
+                loanedBooks.add(bookAuthor);
+            }
+
+            return loanedBooks;
+        } catch (Exception ex) {
+            System.out.println("Query failed: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * This method selects all the entries in the member table from the
      * library.db. It then populates a list of Member objects
      * with this data.
@@ -437,8 +515,9 @@ public class DataModel {
      */
     public List<LoanedBook> getLoanedBooks(String memberFirstName, String memberLastName) {
         List<LoanedBook> loanedBooks = new ArrayList<>();
+        Member member = selectMemberByName(memberFirstName, memberLastName);
 
-        int memberId = selectMemberIdByName(memberFirstName, memberLastName);
+        int memberId = (member != null) ? member.get_id() : -1;
         int bookId;
         String title;
 
@@ -704,6 +783,7 @@ public class DataModel {
      * Updates the author that currently has the first_name = 'originalFirstName'
      * and last_name = 'originalLastName' with the values that are sent as
      * arguments to this method.
+     *
      * @param originalFirstName
      * @param originalLastName
      * @param newFirstName
@@ -785,34 +865,76 @@ public class DataModel {
     }
 
     /**
-     * This method is used for getting the ID of a member when the
-     * first and last names are known.
+     * Updates the member that currently has the first_name = 'originalFirstName'
+     * and last_name = 'originalLastName' with the values that are sent as
+     * arguments to this method.
+     *
+     * @param originalFirstName
+     * @param originalLastName
+     * @param newFirstName
+     * @param newLastName
+     * @param address
+     * @param email
+     * @param phone
+     */
+    public void updateMember(String originalFirstName, String originalLastName,
+                             String newFirstName, String newLastName, String address,
+                             String email, String phone) {
+
+        try {
+            updateMembers.setString(1, newFirstName);
+            updateMembers.setString(2, newLastName);
+            updateMembers.setString(3, address);
+            updateMembers.setString(4, email);
+            updateMembers.setString(5, phone);
+            updateMembers.setString(6, originalFirstName);
+            updateMembers.setString(7, originalLastName);
+
+            int affectedRows = updateMembers.executeUpdate();
+
+            if (affectedRows != 1) {
+                throw new SQLException("Updating the member failed.");
+            }
+        } catch (Exception e) {
+            System.out.println("Update member exception: " + e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used for getting a member from the library.db
+     * using the first and last name.
      *
      * @param firstName
      * @param lastName
-     * @return _id of the member
+     * @return a Member instance
      */
-    private int selectMemberIdByName(String firstName, String lastName) {
-        int memberId;
+    public Member selectMemberByName(String firstName, String lastName) {
+        Member member = new Member();
 
         try {
-            selectMemberIdByName.setString(1, firstName);
-            selectMemberIdByName.setString(2, lastName);
+            selectMemberByName.setString(1, firstName);
+            selectMemberByName.setString(2, lastName);
 
-            ResultSet results = selectMemberIdByName.executeQuery();
+            ResultSet results = selectMemberByName.executeQuery();
 
             if (results.next()) {
                 // The query returned some value
-                memberId = results.getInt(1);
-                return memberId;
+                member.set_id(results.getInt(1));
+                member.setFirstName(results.getString(2));
+                member.setLastName(results.getString(3));
+                member.setAddress(results.getString(4));
+                member.setEmail(results.getString(5));
+                member.setPhone(results.getString(6));
+
+                return member;
             } else {
                 // The query didn't return any value
-                return 0;
+                return null;
             }
 
         } catch (Exception e) {
-            System.out.println("Get member ID exception: " + e.getMessage());
-            return -1;
+            System.out.println("Get member by name exception: " + e.getMessage());
+            return null;
         }
     }
 
@@ -905,7 +1027,8 @@ public class DataModel {
     public void insertLoanedBook(String title, String memberFirstName,
                                   String memberLastName, String loanDate, String dueDate) {
 
-        int memberId = selectMemberIdByName(memberFirstName, memberLastName);
+        Member member = selectMemberByName(memberFirstName, memberLastName);
+        int memberId = (member != null) ? member.get_id() : -1;
         int bookId = selectBookIdByTitle(title);
 
         try {
@@ -934,12 +1057,13 @@ public class DataModel {
      * @return the AccountType
      */
     public AccountType getAccountType(String firstName, String lastName) {
+        Member member = selectMemberByName(firstName, lastName);
         int librarianId = selectLibrarianIdByName(firstName, lastName);
-        int memberId = selectMemberIdByName(firstName, lastName);
+        int memberId = (member != null) ? member.get_id() : -1;
 
         if (librarianId != 0) {
             return AccountType.LIBRARIAN;
-        } else if (memberId != 0) {
+        } else if (memberId != -1) {
             return AccountType.MEMBER;
         } else {
             return null;
@@ -1011,13 +1135,79 @@ public class DataModel {
      * @return
      */
     public String getMemberPassword(String firstName, String lastName) {
-        int memberId = selectMemberIdByName(firstName, lastName);
+        Member member = selectMemberByName(firstName, lastName);
+        int memberId = (member != null) ? member.get_id() : -1;
 
         return selectMemberPasswordById(memberId);
+    }
+
+    /**
+     * This method is used for getting the due date of a book
+     * based on the book ID.
+     *
+     * @param bookId
+     * @return the due date if the query had a result
+     *         null if no results were returned by the query
+     */
+    private String selectDueDateByBookId(int bookId) {
+        String dueDate;
+
+        try {
+            selectDueDateByBookId.setInt(1, bookId);
+
+            ResultSet results = selectDueDateByBookId.executeQuery();
+
+            if (results.next()) {
+                dueDate = results.getString(1);
+                return dueDate;
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            System.out.println("Select due date exception: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * This method is used for getting the due date
+     * of a book.
+     *
+     * @param title
+     * @return due date if the book is loaned
+     *         null if the book is not loaned
+     */
+    public String getDueDate(String title) {
+        int bookId = selectBookIdByTitle(title);
+
+        return selectDueDateByBookId(bookId);
+    }
+
+    /**
+     * This method is used for getting the status of a book.
+     *
+     * @param title
+     * @return LOANED
+     *         AVAILABLE
+     */
+    public BookStatus getBookStatus(String title) {
+        int bookId = selectBookIdByTitle(title);
+        String dueDate = selectDueDateByBookId(bookId);
+
+        if (dueDate == null) {
+            return BookStatus.AVAILABLE;
+        } else {
+            return BookStatus.LOANED;
+        }
     }
 
     public enum AccountType {
         LIBRARIAN,
         MEMBER
+    }
+
+    public enum BookStatus {
+        AVAILABLE,
+        LOANED
     }
 }

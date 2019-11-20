@@ -14,5 +14,7 @@ module LibraryManagementSystem {
     opens view.librarian_view.member;
     opens view.librarian_view.insert_member;
     opens view.main_view;
+    opens view.member_view;
+    opens view.member_view.update_member;
     opens model;
 }

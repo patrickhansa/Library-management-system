@@ -11,6 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.DataModel;
+import model.Member;
 
 public class LoginViewController {
     @FXML
@@ -65,12 +66,13 @@ public class LoginViewController {
                     try {
                         root = FXMLLoader.load(getClass().getResource("/view/librarian_view/librarianView.fxml"));
 
-                        Scene scene = new Scene(root, 1000, 600);
+                        Scene scene = new Scene(root, 1200, 600);
                         stage.setScene(scene);
                         stage.centerOnScreen();
                         stage.show();
                     } catch (Exception ex) {
                         System.out.println("Load FXML exception: " + ex.getMessage());
+                        ex.printStackTrace();
                     }
                 } else {
                     statusLabel.setText("Incorrect password.");
@@ -79,15 +81,19 @@ public class LoginViewController {
                 String password = DataModel.getInstance().getMemberPassword(firstName, lastName);
 
                 if (password.equals(passwordField.getText())) {
+                    Member currentlyLoggedMember = DataModel.getInstance().selectMemberByName(firstName, lastName);
+                    DataModel.getInstance().setCurrentlyLoggedMember(currentlyLoggedMember);
+
                     try {
                         root = FXMLLoader.load(getClass().getResource("/view/member_view/memberView.fxml"));
 
-                        Scene scene = new Scene(root, 1000, 600);
+                        Scene scene = new Scene(root, 1200, 600);
                         stage.setScene(scene);
                         stage.centerOnScreen();
                         stage.show();
                     } catch (Exception ex) {
                         System.out.println("Load FXML exception: " + ex.getMessage());
+                        ex.printStackTrace();
                     }
                 } else {
                     statusLabel.setText("Incorrect password.");
