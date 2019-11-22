@@ -9,10 +9,10 @@ import java.util.Date;
 
 public class IssueBookDialogController {
     @FXML
-    TextField memberFirstNameField;
+    private TextField memberFirstNameField;
 
     @FXML
-    TextField memberLastNameField;
+    private TextField memberLastNameField;
 
     /**
      * This method is called when the user presses the 'OK' button from

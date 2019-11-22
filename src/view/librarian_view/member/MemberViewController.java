@@ -17,23 +17,24 @@ import java.util.Optional;
 
 public class MemberViewController {
     @FXML
-    ListView<Member> memberListView;
+    private ListView<Member> memberListView;
 
     @FXML
-    BorderPane mainBorderPane;
+    private BorderPane mainBorderPane;
 
     @FXML
-    TextArea memberDetailsArea;
+    private TextArea memberDetailsArea;
 
     @FXML
-    TableView<LoanedBook> memberDetailsView;
+    private TableView<LoanedBook> memberDetailsView;
 
-    @FXML
+
     /**
      * This method is used for displaying all the library members in the database.
      * It binds the ListView contents to those of the member table from the
      * library.db.
      */
+    @FXML
     public void listAllMembers() {
         Task<ObservableList<Member>> task = new GetAllMembers();
         memberListView.itemsProperty().bind(task.valueProperty());
@@ -41,12 +42,13 @@ public class MemberViewController {
         new Thread(task).start();
     }
 
-    @FXML
+
     /**
      * This method is called every time the user selects a member.
      * It is used for updating the contact information of each member
      * and their respective loan details.
      */
+    @FXML
     public void handleClickListView() {
         StringBuilder sb = new StringBuilder();
         Member member = memberListView.getSelectionModel().getSelectedItem();
@@ -65,13 +67,14 @@ public class MemberViewController {
         memberDetailsArea.setText(sb.toString());
     }
 
-    @FXML
+
     /**
      * This method is called when the user presses the 'Add member' button.
      * It loads the .fxml for the dialog used when adding members; after the
      * fields were filled in by the user it calls the function that adds the
      * new entry in the library.db.
      */
+    @FXML
     public void showInsertMemberDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());

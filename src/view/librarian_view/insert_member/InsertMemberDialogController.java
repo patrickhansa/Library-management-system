@@ -6,19 +6,19 @@ import model.DataModel;
 
 public class InsertMemberDialogController {
     @FXML
-    TextField firstNameField;
+    private TextField firstNameField;
 
     @FXML
-    TextField lastNameField;
+    private TextField lastNameField;
 
     @FXML
-    TextField addressField;
+    private TextField addressField;
 
     @FXML
-    TextField emailField;
+    private TextField emailField;
 
     @FXML
-    TextField phoneField;
+    private TextField phoneField;
 
     /**
      * This method is called when the user presses the 'OK' button from

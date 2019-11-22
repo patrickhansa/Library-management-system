@@ -17,16 +17,17 @@ import java.util.Optional;
 
 public class AvailableBooksViewController {
     @FXML
-    TableView table;
+    private TableView table;
 
     @FXML
-    BorderPane mainBorderPane;
+    private BorderPane mainBorderPane;
 
-    @FXML
+
     /**
      * This method is used for displaying the details of all the books in the
      * database that are not loaned.
      */
+    @FXML
     public void listAvailableBooks() {
         Task<ObservableList<BookAuthor>> task = new GetAllAvailableBooks();
         table.itemsProperty().bind(task.valueProperty());
@@ -35,13 +36,14 @@ public class AvailableBooksViewController {
     }
 
 
-    @FXML
+
     /**
      * This method is called when the user presses the 'Insert book' button.
      * It loads the .fxml for the dialog used when inserting books; after the
      * fields were filled in by the user it calls the function that adds the
      * new entry in the library.db.
      */
+    @FXML
     public void showIssueBookDialog() {
         final BookAuthor bookAuthor = (BookAuthor) table.getSelectionModel().getSelectedItem();
         if (bookAuthor == null) {

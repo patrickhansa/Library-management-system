@@ -5,22 +5,19 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.BorderPane;
 import model.BookAuthor;
 import model.DataModel;
 
 public class LoanedBooksViewController {
     @FXML
-    BorderPane mainBorderPane;
+    private TableView<BookAuthor> table;
 
-    @FXML
-    TableView<BookAuthor> table;
 
-    @FXML
     /**
      * Called when the user presses the 'Return book' button. It removes the currently
      * selected loaned book from the database.
      */
+    @FXML
     public void deleteLoanedBook() {
         final BookAuthor bookAuthor = table.getSelectionModel().getSelectedItem();
 
@@ -36,11 +33,12 @@ public class LoanedBooksViewController {
         listLoanedBooks();
     }
 
-    @FXML
+
     /**
      * This method is used for displaying the details of all the books in the
      * database that are loaned.
      */
+    @FXML
     public void listLoanedBooks() {
         Task<ObservableList<BookAuthor>> task = new GetAllLoanedBooks();
         table.itemsProperty().bind(task.valueProperty());

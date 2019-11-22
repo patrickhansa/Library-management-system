@@ -102,14 +102,16 @@ public class DataModel {
             " = ?" + ", " + COLUMN_MEMBER_EMAIL + " = ?" + ", " + COLUMN_MEMBER_PHONE + " = ?" +
             " WHERE " + COLUMN_MEMBER_FIRST_NAME + " = ?" + " AND " + COLUMN_MEMBER_LAST_NAME + " = ?";
 
-    public static final String SELECT_AVAILABLE_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
+    public static final String SELECT_BOOK_AUTHOR = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
             ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
             ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_NATIONALITY + ", " + TABLE_BOOK + "." + COLUMN_BOOK_ISBN +
             ", " + TABLE_BOOK + "." + COLUMN_BOOK_SUBJECT + ", " + TABLE_BOOK + "." + COLUMN_BOOK_PUBLICATION_DATE +
             " FROM " + TABLE_BOOK + " INNER JOIN " + TABLE_AUTHOR + " ON " + TABLE_BOOK + "." + COLUMN_BOOK_AUTHOR_ID +
             " = " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_ID + " LEFT JOIN " + TABLE_LOANED_BOOKS + " ON " +
-            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID +
-            " WHERE " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_ID + " IS NULL";
+            TABLE_BOOK + "." + COLUMN_BOOK_ID + " = " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID;
+
+    public static final String SELECT_AVAILABLE_BOOKS = SELECT_BOOK_AUTHOR + " WHERE " + TABLE_LOANED_BOOKS +
+            "." + COLUMN_LOANED_BOOKS_ID + " IS NULL";
 
     public static final String SELECT_LOANED_BOOKS = "SELECT " + TABLE_BOOK + "." + COLUMN_BOOK_TITLE +
             ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + ", " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
@@ -149,7 +151,20 @@ public class DataModel {
     public static final String SELECT_DUE_DATE_BY_BOOK_ID = "SELECT " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_DUE_DATE +
             " FROM " + TABLE_LOANED_BOOKS + " WHERE " + TABLE_LOANED_BOOKS + "." + COLUMN_LOANED_BOOKS_BOOK_ID + " = ?";
 
+    public static final String SEARCH_BOOK_BY_TITLE = SELECT_BOOK_AUTHOR + " WHERE " + TABLE_BOOK +
+            "." + COLUMN_BOOK_TITLE + " LIKE ?";
 
+    public static final String SEARCH_BOOK_BY_AUTHOR_FULL_NAME = SELECT_BOOK_AUTHOR + " WHERE " + TABLE_AUTHOR +
+            "." + COLUMN_AUTHOR_FIRST_NAME + " LIKE ?" + " AND " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
+            " LIKE ?" + " OR " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_FIRST_NAME + " LIKE ?" + " AND " +
+            TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME + " LIKE ?";
+
+    public static final String SEARCH_BOOK_BY_AUTHOR_SINGLE_NAME = SELECT_BOOK_AUTHOR + " WHERE " + TABLE_AUTHOR +
+            "." + COLUMN_AUTHOR_FIRST_NAME + " LIKE ?" + " OR " + TABLE_AUTHOR + "." + COLUMN_AUTHOR_LAST_NAME +
+            " LIKE ?";
+
+    public static final String SEARCH_BOOK_BY_SUBJECT = SELECT_BOOK_AUTHOR + " WHERE " + TABLE_BOOK +
+            "." + COLUMN_BOOK_SUBJECT + " LIKE ?";
 
     private Connection conn;
 
@@ -174,6 +189,11 @@ public class DataModel {
     private PreparedStatement selectMemberByName;
     private PreparedStatement selectDueDateByBookId;
     private PreparedStatement selectBooksLoanedByMember;
+    private PreparedStatement searchBookByTitle;
+    private PreparedStatement searchBookByAuthorFullName;
+    private PreparedStatement searchBookByAuthorSingleName;
+    private PreparedStatement searchBookBySubject;
+
 
     private Member currentlyLoggedMember;
 
@@ -191,7 +211,9 @@ public class DataModel {
         this.currentlyLoggedMember = currentlyLoggedMember;
     }
 
-    public static DataModel getInstance() { return instance; }
+    public static DataModel getInstance() {
+        return instance;
+    }
 
     /**
      * This method is used for connecting to the library database
@@ -199,7 +221,7 @@ public class DataModel {
      * when the view.application is started.
      *
      * @return true if the connection was successful
-     *         false if the connection failed
+     * false if the connection failed
      */
     public boolean open() {
         try {
@@ -226,6 +248,11 @@ public class DataModel {
             selectMemberByName = conn.prepareStatement(SELECT_MEMBER_BY_NAME);
             selectDueDateByBookId = conn.prepareStatement(SELECT_DUE_DATE_BY_BOOK_ID);
             selectBooksLoanedByMember = conn.prepareStatement(SELECT_BOOKS_LOANED_BY_MEMBER);
+            searchBookByTitle = conn.prepareStatement(SEARCH_BOOK_BY_TITLE);
+            searchBookByAuthorFullName = conn.prepareStatement(SEARCH_BOOK_BY_AUTHOR_FULL_NAME);
+            searchBookByAuthorSingleName = conn.prepareStatement(SEARCH_BOOK_BY_AUTHOR_SINGLE_NAME);
+            searchBookBySubject = conn.prepareStatement(SEARCH_BOOK_BY_SUBJECT);
+
 
             return true;
         } catch (SQLException e) {
@@ -324,6 +351,22 @@ public class DataModel {
                 selectBooksLoanedByMember.close();
             }
 
+            if (searchBookByTitle != null) {
+                searchBookByTitle.close();
+            }
+
+            if (searchBookByAuthorFullName != null) {
+                searchBookByAuthorFullName.close();
+            }
+
+            if (searchBookByAuthorSingleName != null) {
+                searchBookByAuthorSingleName.close();
+            }
+
+            if (searchBookBySubject != null) {
+                searchBookBySubject.close();
+            }
+
             if (conn != null) {
                 conn.close();
             }
@@ -338,7 +381,7 @@ public class DataModel {
      * with this data.
      *
      * @return A list of all the books in the database, with their
-     *         respective details (author name, ISBN, subject, etc.).
+     * respective details (author name, ISBN, subject, etc.).
      */
     public List<BookAuthor> getListOfBooksByAuthor() {
         String query = "SELECT * FROM " + TABLE_BOOKS_AUTHOR_VIEW;
@@ -372,6 +415,7 @@ public class DataModel {
      * This methods selects all the books that are not loaned
      * by any member. It then populates a list of BookAuthor objects
      * with this data.
+     *
      * @return A list of the books in the database that have not been loaned
      */
     public List<BookAuthor> getListOfAvailableBooks() {
@@ -404,6 +448,7 @@ public class DataModel {
      * This methods selects all the books that are loaned.
      * It then populates a list of BookAuthor objects
      * with this data.
+     *
      * @return A list of the books in the database that have been loaned
      */
     public List<BookAuthor> getListOfLoanedBooks() {
@@ -438,9 +483,9 @@ public class DataModel {
      * name was given as an argument to this method.
      *
      * @param firstName of the member
-     * @param lastName of the member
+     * @param lastName  of the member
      * @return the list of all the books loaned by the member
-     *         null if the query failed
+     * null if the query failed
      */
     public List<BookAuthor> getListOfBooksLoanedByMember(String firstName, String lastName) {
         Member member = selectMemberByName(firstName, lastName);
@@ -476,7 +521,7 @@ public class DataModel {
      * with this data.
      *
      * @return A list of all the members in the database, with their
-     *         respective details (name, address, email, etc.)
+     * respective details (name, address, email, etc.)
      */
     public List<Member> getListOfMembers() {
         String query = "SELECT * FROM " + TABLE_MEMBER;
@@ -547,8 +592,8 @@ public class DataModel {
      * This method is used for inserting an author in the library.db,
      * if the author doesn't already exist in the database.
      *
-     * @param firstName the first name of the author
-     * @param lastName the last name of the author
+     * @param firstName   the first name of the author
+     * @param lastName    the last name of the author
      * @param nationality the nationality of the author
      * @return the _id of the author in the 'author' table
      * @throws SQLException if the author couldn't be inserted or
@@ -588,13 +633,13 @@ public class DataModel {
      * as an atomic unit. Thus, the database is always either correctly updated
      * with both author and book, or not updated at all if an exception is thrown.
      *
-     * @param authorFirstName first name of the author
-     * @param authorLastName last name of the author
+     * @param authorFirstName   first name of the author
+     * @param authorLastName    last name of the author
      * @param authorNationality nationality of the author
      * @param title
      * @param ISBN
      * @param subject
-     * @param publicationDate date in years only
+     * @param publicationDate   date in years only
      */
     public void insertBook(String authorFirstName, String authorLastName, String authorNationality,
                            String title, String ISBN, String subject, int publicationDate) {
@@ -670,7 +715,7 @@ public class DataModel {
      * greater than 1, don't remove the author.
      *
      * @param firstName first name of the author
-     * @param lastName last name of the author
+     * @param lastName  last name of the author
      * @return number of books written by the particular author
      */
     private int countBooksByAuthor(String firstName, String lastName) {
@@ -695,7 +740,7 @@ public class DataModel {
      * table in the library.db.
      *
      * @param firstName first name of the author
-     * @param lastName last name of the author
+     * @param lastName  last name of the author
      */
     private void deleteAuthor(String firstName, String lastName) {
         try {
@@ -717,7 +762,7 @@ public class DataModel {
      * First, it checks if, after deleting the book, the author still has other entries
      * in the database. If he doesn't, then the author will be deleted as well.
      *
-     * @param title title of the book
+     * @param title           title of the book
      * @param authorFirstName
      * @param authorLastName
      */
@@ -791,7 +836,7 @@ public class DataModel {
      * @param nationality
      */
     private void updateAuthor(String originalFirstName, String originalLastName,
-                             String newFirstName, String newLastName, String nationality) {
+                              String newFirstName, String newLastName, String nationality) {
         try {
             updateAuthors.setString(1, newFirstName);
             updateAuthors.setString(2, newLastName);
@@ -1025,7 +1070,7 @@ public class DataModel {
      * @param dueDate
      */
     public void insertLoanedBook(String title, String memberFirstName,
-                                  String memberLastName, String loanDate, String dueDate) {
+                                 String memberLastName, String loanDate, String dueDate) {
 
         Member member = selectMemberByName(memberFirstName, memberLastName);
         int memberId = (member != null) ? member.get_id() : -1;
@@ -1147,7 +1192,7 @@ public class DataModel {
      *
      * @param bookId
      * @return the due date if the query had a result
-     *         null if no results were returned by the query
+     * null if no results were returned by the query
      */
     private String selectDueDateByBookId(int bookId) {
         String dueDate;
@@ -1175,7 +1220,7 @@ public class DataModel {
      *
      * @param title
      * @return due date if the book is loaned
-     *         null if the book is not loaned
+     * null if the book is not loaned
      */
     public String getDueDate(String title) {
         int bookId = selectBookIdByTitle(title);
@@ -1188,7 +1233,7 @@ public class DataModel {
      *
      * @param title
      * @return LOANED
-     *         AVAILABLE
+     * AVAILABLE
      */
     public BookStatus getBookStatus(String title) {
         int bookId = selectBookIdByTitle(title);
@@ -1198,6 +1243,171 @@ public class DataModel {
             return BookStatus.AVAILABLE;
         } else {
             return BookStatus.LOANED;
+        }
+    }
+
+    /**
+     * Used for checking if a certain book is currently loaned by a member.
+     * It gets the list of loaned books by the member and then compares
+     * the ID's.
+     *
+     * @param title
+     * @param memberFirstName
+     * @param memberLastName
+     * @return TRUE if the book is loaned by the member
+     * FALSE if the book is not loaned by the member
+     */
+    public boolean isBookLoanedByMember(String title, String memberFirstName, String memberLastName) {
+        List<LoanedBook> loanedBooksByMember = getLoanedBooks(memberFirstName, memberLastName);
+        int bookId = selectBookIdByTitle(title);
+
+        for (LoanedBook loanedBook : loanedBooksByMember) {
+            if (loanedBook.getBook_id() == bookId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Used for searching the database for all the entries which contain
+     * the title (whatever this is) as part of the actual title
+     * from the library.db.
+     *
+     * @param title
+     * @return a list of the books that match the title
+     */
+    public List<BookAuthor> searchBooksByTitle(String title) {
+        List<BookAuthor> bookAuthors = new ArrayList<>();
+
+        try {
+            searchBookByTitle.setString(1, "%" + title + "%");
+
+            ResultSet results = searchBookByTitle.executeQuery();
+
+            while (results.next()) {
+                BookAuthor bookAuthor = new BookAuthor();
+                bookAuthor.setTitle(results.getString(1));
+                bookAuthor.setFirstName(results.getString(2));
+                bookAuthor.setLastName(results.getString(3));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
+                bookAuthors.add(bookAuthor);
+            }
+
+            return bookAuthors;
+        } catch (Exception ex) {
+            System.out.println("Search book by title exception: " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Used for searching the database for all the entries which contain
+     * the author name.
+     *
+     * @param authorName an array with the first and last name
+     * @return a list of the books that match the author's name
+     */
+    public List<BookAuthor> searchBooksByAuthor(String[] authorName) {
+        List<BookAuthor> bookAuthors = new ArrayList<>();
+        String firstName;
+        String lastName;
+
+        if (authorName.length == 2) {
+            firstName = authorName[0];
+            lastName = authorName[1];
+
+            try {
+                searchBookByAuthorFullName.setString(1, "%" + firstName + "%");
+                searchBookByAuthorFullName.setString(2, "%" + lastName + "%");
+                searchBookByAuthorFullName.setString(3, "%" + lastName + "%");
+                searchBookByAuthorFullName.setString(4, "%" + firstName + "%");
+
+                ResultSet results = searchBookByAuthorFullName.executeQuery();
+
+                while (results.next()) {
+                    BookAuthor bookAuthor = new BookAuthor();
+                    bookAuthor.setTitle(results.getString(1));
+                    bookAuthor.setFirstName(results.getString(2));
+                    bookAuthor.setLastName(results.getString(3));
+                    bookAuthor.setNationality(results.getString(4));
+                    bookAuthor.setISBN(results.getString(5));
+                    bookAuthor.setSubject(results.getString(6));
+                    bookAuthor.setPublicationDate(results.getInt(7));
+                    bookAuthors.add(bookAuthor);
+                }
+
+                return bookAuthors;
+            } catch (Exception ex) {
+                System.out.println("Search book by author full name exception: " + ex.getMessage());
+                return null;
+            }
+        } else if (authorName.length == 1) {
+            firstName = authorName[0];
+
+            try {
+                searchBookByAuthorSingleName.setString(1, "%" + firstName + "%");
+                searchBookByAuthorSingleName.setString(2, "%" + firstName + "%");
+
+                ResultSet results = searchBookByAuthorSingleName.executeQuery();
+
+                while (results.next()) {
+                    BookAuthor bookAuthor = new BookAuthor();
+                    bookAuthor.setTitle(results.getString(1));
+                    bookAuthor.setFirstName(results.getString(2));
+                    bookAuthor.setLastName(results.getString(3));
+                    bookAuthor.setNationality(results.getString(4));
+                    bookAuthor.setISBN(results.getString(5));
+                    bookAuthor.setSubject(results.getString(6));
+                    bookAuthor.setPublicationDate(results.getInt(7));
+                    bookAuthors.add(bookAuthor);
+                }
+
+                return bookAuthors;
+            } catch (Exception ex) {
+                System.out.println("Search book by author single name exception: " + ex.getMessage());
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Used for searching the database for all the entries which contain
+     * the subject of the book that was sent as an argument.
+     *
+     * @param subject
+     * @return a list of the books that match the subject
+     */
+    public List<BookAuthor> searchBooksBySubject(String subject) {
+        List<BookAuthor> bookAuthors = new ArrayList<>();
+
+        try {
+            searchBookBySubject.setString(1, "%" + subject + "%");
+
+            ResultSet results = searchBookBySubject.executeQuery();
+
+            while (results.next()) {
+                BookAuthor bookAuthor = new BookAuthor();
+                bookAuthor.setTitle(results.getString(1));
+                bookAuthor.setFirstName(results.getString(2));
+                bookAuthor.setLastName(results.getString(3));
+                bookAuthor.setNationality(results.getString(4));
+                bookAuthor.setISBN(results.getString(5));
+                bookAuthor.setSubject(results.getString(6));
+                bookAuthor.setPublicationDate(results.getInt(7));
+                bookAuthors.add(bookAuthor);
+            }
+
+            return bookAuthors;
+        } catch (Exception ex) {
+            System.out.println("Search book by subject exception: " + ex.getMessage());
+            return null;
         }
     }
 

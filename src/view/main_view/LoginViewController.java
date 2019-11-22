@@ -26,10 +26,11 @@ public class LoginViewController {
     @FXML
     private Label notesLabel;
 
-    @FXML
+
     /**
      * Initialize the description that mentions a set of account login information.
      */
+    @FXML
     public void initialize() {
         String description = "The following credentials can be used for logging in:" +
                 "\nLibrarian: Username -> Steve Booth; Password -> a" +
@@ -38,12 +39,13 @@ public class LoginViewController {
         notesLabel.setText(description);
     }
 
-    @FXML
+
     /**
      * This function is used for validating the account credentials of the user
      * of the application. Depending on the account type, it loads either
      * the librarian view or the member view.
      */
+    @FXML
     public void login(ActionEvent event) {
         Stage stage;
         Parent root;

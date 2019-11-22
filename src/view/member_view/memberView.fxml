@@ -53,9 +53,9 @@
             </columns>
         </TableView>
         <Button onAction="#showUpdateMemberDialog" layoutX="1011.0" layoutY="201.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="112.0" text="Edit account" />
-        <Button layoutX="857.0" layoutY="201.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Search book" />
-        <Button layoutX="857.0" layoutY="240.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Loan book" />
-        <Button layoutX="857.0" layoutY="275.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Return book" />
+        <Button onAction="#showSearchBookDialog" layoutX="857.0" layoutY="201.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Search book" />
+        <Button onAction="#loanBook" layoutX="857.0" layoutY="240.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Loan book" />
+        <Button onAction="#returnBook" layoutX="857.0" layoutY="275.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Return book" />
         <AnchorPane layoutX="850.0" layoutY="1.0" prefHeight="200.0" prefWidth="286.0">
             <children>
                 <Label fx:id="nameLabel" alignment="CENTER" layoutX="39.0" layoutY="21.0" prefHeight="25.0" prefWidth="219.0">

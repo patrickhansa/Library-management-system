@@ -23,12 +23,13 @@ public class AllBooksViewController {
     @FXML
     private BorderPane mainBorderPane;
 
-    @FXML
+
     /**
      * This method is used for displaying the details of all the books in the
      * database. It binds the TableView contents to those of the books_by_author
      * view from the library.db.
      */
+    @FXML
     public void listAll() {
         Task<ObservableList<BookAuthor>> task = new GetAllBooksAndAuthorsTask();
         table.itemsProperty().bind(task.valueProperty());
@@ -36,13 +37,14 @@ public class AllBooksViewController {
         new Thread(task).start();
     }
 
-    @FXML
+
     /**
      * This method is called when the user presses the 'Insert book' button.
      * It loads the .fxml for the dialog used when inserting books; after the
      * fields were filled in by the user it calls the function that adds the
      * new entry in the library.db.
      */
+    @FXML
     public void showInsertBookDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainBorderPane.getScene().getWindow());
@@ -72,13 +74,14 @@ public class AllBooksViewController {
         listAll();
     }
 
-    @FXML
+
     /**
      * This method is called when the user presses the 'Update book' button.
      * It loads the .fxml for the dialog used when updating books; after the
      * fields were filled in by the user it calls the function that updates the
      * new entry in the library.db.
      */
+    @FXML
     public void showUpdateBookDialog() {
         final BookAuthor bookAuthor = (BookAuthor) table.getSelectionModel().getSelectedItem();
         if (bookAuthor == null) {
@@ -116,11 +119,12 @@ public class AllBooksViewController {
         listAll();
     }
 
-    @FXML
+
     /**
      * Called when the user presses the 'Delete' button. It removes the currently
      * selected book from the database.
      */
+    @FXML
     public void deleteBook() {
         final BookAuthor bookAuthor = (BookAuthor) table.getSelectionModel().getSelectedItem();
 
