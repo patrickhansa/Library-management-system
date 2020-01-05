@@ -1,0 +1,11 @@
+<?import javafx.scene.control.TabPane?>
+
+<TabPane xmlns:fx="http://javafx.com/fxml/1"
+         xmlns="http://javafx.com/javafx/8.0.172-ea"
+         fx:controller="view.librarian_view.LibrarianViewController">
+    <fx:include source="/fxml/allBooksView.fxml"/>
+    <fx:include source="/fxml/availableBooksView.fxml"/>
+    <fx:include source="/fxml/loanedBooksView.fxml"/>
+    <fx:include source="/fxml/librarianMemberView.fxml"/>
+
+</TabPane>

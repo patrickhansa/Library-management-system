@@ -1,0 +1,28 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/8.0.172-ea"
+            fx:controller="view.librarian_view.insert_book.InsertBookDialogController">
+    <headerText>
+        Insert a new book
+    </headerText>
+    <content>
+        <GridPane vgap="10" hgap="10">
+            <Label text="Title: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="titleField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            <Label text="Author's first name: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="authorFirstNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <Label text="Author's last name: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="authorLastNameField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <Label text="Author's nationality: " GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="nationalityField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <Label text="ISBN: " GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="ISBNField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <Label text="Subject: " GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+            <TextField fx:id="subjectField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <Label text="Publication date: " GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+            <TextField fx:id="publicationDateField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+        </GridPane>
+    </content>
+</DialogPane>
