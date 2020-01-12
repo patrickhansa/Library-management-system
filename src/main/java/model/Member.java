@@ -2,13 +2,32 @@ package model;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import model.validation.Extended;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 public class Member {
     private SimpleIntegerProperty _id;
+
+    @NotBlank(message = "The first name should not be empty")
+    @Size(min = 2, max = 40, message = "The first name should be between {min} and {max} characters long", groups = Extended.class)
     private SimpleStringProperty firstName;
+
+    @NotBlank(message = "The last name should not be empty")
+    @Size(min = 2, max = 40, message = "The last name should be between {min} and {max} characters long", groups = Extended.class)
     private SimpleStringProperty lastName;
+
+    @NotBlank(message = "The address should not be empty")
+    @Size(min = 2, max = 100, message = "The address should be between {min} and {max} characters long", groups = Extended.class)
     private SimpleStringProperty address;
+
+    @NotBlank(message = "The email should not be empty")
+    @Email(message = "Email should be valid", groups = Extended.class)
     private SimpleStringProperty email;
+
+    @NotBlank(message = "The phone number should not be empty")
     private SimpleStringProperty phone;
 
     public Member() {
@@ -18,6 +37,24 @@ public class Member {
         this.address = new SimpleStringProperty();
         this.email = new SimpleStringProperty();
         this.phone = new SimpleStringProperty();
+    }
+
+    public Member(String firstName, String lastName, String address, String email, String phone) {
+        this._id = new SimpleIntegerProperty();
+        this.firstName = new SimpleStringProperty(firstName);
+        this.lastName = new SimpleStringProperty(lastName);
+        this.address = new SimpleStringProperty(address);
+        this.email = new SimpleStringProperty(email);
+        this.phone = new SimpleStringProperty(phone);
+    }
+
+    public Member(SimpleIntegerProperty _id, @NotBlank(message = "The first name should not be empty") @Size(min = 2, max = 40, message = "The first name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty firstName, @NotBlank(message = "The last name should not be empty") @Size(min = 2, max = 40, message = "The last name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty lastName, @NotBlank(message = "The address should not be empty") @Size(min = 2, max = 100, message = "The last name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty address, @NotBlank(message = "The email should not be empty") @Email(message = "Email should be valid", groups = Extended.class) SimpleStringProperty email, @NotBlank(message = "The phone number should not be empty") SimpleStringProperty phone) {
+        this._id = _id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address = address;
+        this.email = email;
+        this.phone = phone;
     }
 
     public int get_id() {
@@ -36,7 +73,7 @@ public class Member {
         return firstName.get();
     }
 
-    public SimpleStringProperty firstNameProperty() {
+    public @NotBlank(message = "The first name should not be empty") @Size(min = 2, max = 40, message = "The first name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty firstNameProperty() {
         return firstName;
     }
 
@@ -48,7 +85,7 @@ public class Member {
         return lastName.get();
     }
 
-    public SimpleStringProperty lastNameProperty() {
+    public @NotBlank(message = "The last name should not be empty") @Size(min = 2, max = 40, message = "The last name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty lastNameProperty() {
         return lastName;
     }
 
@@ -60,7 +97,7 @@ public class Member {
         return address.get();
     }
 
-    public SimpleStringProperty addressProperty() {
+    public @NotBlank(message = "The address should not be empty") @Size(min = 2, max = 100, message = "The last name should be between {min} and {max} characters long", groups = Extended.class) SimpleStringProperty addressProperty() {
         return address;
     }
 
@@ -72,7 +109,7 @@ public class Member {
         return email.get();
     }
 
-    public SimpleStringProperty emailProperty() {
+    public @NotBlank(message = "The email should not be empty") @Email(message = "Email should be valid", groups = Extended.class) SimpleStringProperty emailProperty() {
         return email;
     }
 
@@ -84,7 +121,7 @@ public class Member {
         return phone.get();
     }
 
-    public SimpleStringProperty phoneProperty() {
+    public @NotBlank(message = "The phone number should not be empty") SimpleStringProperty phoneProperty() {
         return phone;
     }
 

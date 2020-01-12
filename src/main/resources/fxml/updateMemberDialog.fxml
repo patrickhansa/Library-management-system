@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<DialogPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="view.member_view.update_member.UpdateMemberDialogController"
-            prefWidth="500">
+<DialogPane prefWidth="550" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.member_view.update_member.UpdateMemberDialogController">
     <headerText>
         Update member
     </headerText>
     <content>
-        <GridPane vgap="10" hgap="10">
-            <Label text="First name: " GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-            <TextField fx:id="firstNameField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="300"/>
-            <Label text="Last name: " GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-            <TextField fx:id="lastNameField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-            <Label text="Address: " GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-            <TextField fx:id="addressField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-            <Label text="Email: " GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-            <TextField fx:id="emailField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-            <Label text="Phone: " GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-            <TextField fx:id="phoneField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-        </GridPane>
+        <AnchorPane prefHeight="228.0" prefWidth="800.0">
+            <Label layoutX="14.0" layoutY="8.0" prefHeight="28.0" prefWidth="107.0" text="First name: " />
+            <TextField fx:id="firstNameField" layoutX="147.0" layoutY="10.0" prefHeight="25.0" prefWidth="350.0" />
+            <Label fx:id="firstNameErrorLabel" layoutX="147.0" layoutY="35.0" prefHeight="17.0" prefWidth="349.0" textFill="#eb0a0a" />
+            <Label layoutX="14.0" layoutY="49.0" prefHeight="29.0" prefWidth="120.0" text="Last name: " />
+            <TextField fx:id="lastNameField" layoutX="147.0" layoutY="51.0" prefHeight="25.0" prefWidth="350.0" />
+            <Label fx:id="lastNameErrorLabel" layoutX="147.0" layoutY="76.0" prefHeight="17.0" prefWidth="350.0" textFill="#eb0a0a" />
+            <Label layoutX="17.0" layoutY="94.0" prefHeight="24.0" prefWidth="126.0" text="Address: " />
+            <TextField fx:id="addressField" layoutX="147.0" layoutY="93.0" prefHeight="25.0" prefWidth="350.0" />
+            <Label fx:id="addressErrorLabel" layoutX="147.0" layoutY="118.0" prefHeight="17.0" prefWidth="348.0" textFill="#eb0a0a" />
+            <Label layoutX="17.0" layoutY="136.0" prefHeight="24.0" prefWidth="114.0" text="Email: " />
+            <TextField fx:id="emailField" layoutX="147.0" layoutY="135.0" prefHeight="25.0" prefWidth="349.0" />
+            <Label fx:id="emailErrorLabel" layoutX="147.0" layoutY="160.0" prefHeight="17.0" prefWidth="348.0" textFill="#eb0a0a" />
+            <Label layoutX="17.0" layoutY="181.0" prefHeight="26.0" prefWidth="109.0" text="Phone: " />
+            <TextField fx:id="phoneField" layoutX="149.0" layoutY="177.0" prefHeight="25.0" prefWidth="346.0" />
+            <Label fx:id="phoneErrorLabel" layoutX="149.0" layoutY="202.0" prefHeight="17.0" prefWidth="299.0" textFill="#eb0a0a" />
+        </AnchorPane>
     </content>
 </DialogPane>

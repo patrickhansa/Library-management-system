@@ -2,6 +2,7 @@ module LibraryManagementSystem {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires java.validation;
 
     opens application;
     opens view.librarian_view to javafx.fxml;

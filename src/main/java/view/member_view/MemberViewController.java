@@ -2,12 +2,10 @@ package view.member_view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import model.BookAuthor;
 import model.DataModel;
@@ -87,10 +85,10 @@ public class MemberViewController {
     public void showUpdateMemberDialog() {
         final Member currentlyLoggedMember = DataModel.getInstance().getCurrentlyLoggedMember();
 
+        // Create a dialog and load the corresponding .fxml
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainAnchorPane.getScene().getWindow());
         FXMLLoader fxmlLoader = new FXMLLoader();
-//        fxmlLoader.setLocation(getClass().getResource("/view/member_view/update_member/updateMemberDialog.fxml"));
         fxmlLoader.setLocation(getClass().getResource("/fxml/updateMemberDialog.fxml"));
 
         try {
@@ -101,20 +99,36 @@ public class MemberViewController {
             return;
         }
 
+        // Get the controller and set the contents of the fields
+        // in the dialog box
         UpdateMemberDialogController controller = fxmlLoader.getController();
         controller.loadContentsOfDialogBox(currentlyLoggedMember);
 
+        // Add an OK and Cancel button
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
 
-        Optional<ButtonType> result = dialog.showAndWait();
+        // When the OK button is pressed, validate the input
+        // given by the user. If the input is valid, then
+        // close the dialog. If it is invalid, leave it opened.
+        okButton.addEventFilter(
+                ActionEvent.ACTION,
+                actionEvent -> {
+                    boolean validationSuccessful = controller.processResults(
+                            currentlyLoggedMember.getFirstName(), currentlyLoggedMember.getLastName());
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            controller.processResults(currentlyLoggedMember.getFirstName(), currentlyLoggedMember.getLastName());
-        }
+                    if (!validationSuccessful) {
+                        actionEvent.consume();
+                    }
+                }
+        );
 
-        // After the update operation was successfully performed on the database,
-        // make sure that the view is also updated
+        // Show the dialog
+        dialog.showAndWait();
+
+        // After the update operation was successfully performed
+        // on the database, make sure that the view is also updated
         displayMemberDetails();
     }
 
@@ -130,7 +144,6 @@ public class MemberViewController {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.initOwner(mainAnchorPane.getScene().getWindow());
         FXMLLoader fxmlLoader = new FXMLLoader();
-//        fxmlLoader.setLocation(getClass().getResource("/view/member_view/search_book/searchBookDialog.fxml"));
         fxmlLoader.setLocation(getClass().getResource("/fxml/searchBookDialog.fxml"));
 
         try {
@@ -225,7 +238,6 @@ public class MemberViewController {
         } else {
             System.out.println("The book is not loaned by you.");
         }
-
 
         // This is the only tab that needs to be updated
         // since this is the only place where the member

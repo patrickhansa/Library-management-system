@@ -66,7 +66,6 @@ public class LoginViewController {
 
                 if (password.equals(passwordField.getText())) {
                     try {
-//                        root = FXMLLoader.load(getClass().getResource("/view/librarian_view/librarianView.fxml"));
                         root = FXMLLoader.load(getClass().getResource("/fxml/librarianView.fxml"));
 
                         Scene scene = new Scene(root, 1200, 600);
@@ -88,7 +87,6 @@ public class LoginViewController {
                     DataModel.getInstance().setCurrentlyLoggedMember(currentlyLoggedMember);
 
                     try {
-//                        root = FXMLLoader.load(getClass().getResource("/view/member_view/memberView.fxml"));
                         root = FXMLLoader.load(getClass().getResource("/fxml/memberView.fxml"));
 
                         Scene scene = new Scene(root, 1200, 600);
